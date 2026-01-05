@@ -2,7 +2,7 @@
   "loans": [
     {
       "id": "loan-001",
-      "borrowerWallet": "0x742d35Cc6634C0532925a3b844Bc9e7595f1db38",
+      "borrowerWallet": "0x4612965e3Bd34DB6a002b8CC5f42f5925D9B38D7",
       "borrowerName": "Dheeraj Sharma",
       "amount": 0.5,
       "interestRate": 12,
@@ -14,7 +14,7 @@
     },
     {
       "id": "loan-002",
-      "borrowerWallet": "0xdD2FD4581271e230360230F9337D5c0430Bf44C0",
+      "borrowerWallet": "0x1a2B3c4D5e6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B",
       "borrowerName": "Piyush Mishra",
       "amount": 0.3,
       "interestRate": 10,
@@ -26,7 +26,7 @@
     },
     {
       "id": "loan-003",
-      "borrowerWallet": "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+      "borrowerWallet": "0x8B3a3b2F4c5D6e7F8A9b0C1d2E3F4a5B6C7D8E9F",
       "borrowerName": "Srijita Seth",
       "amount": 1.0,
       "interestRate": 15,
@@ -38,7 +38,7 @@
     },
     {
       "id": "loan-004",
-      "borrowerWallet": "0x742d35Cc6634C0532925a3b844Bc9e7595f1db38",
+      "borrowerWallet": "0x4612965e3Bd34DB6a002b8CC5f42f5925D9B38D7",
       "borrowerName": "Dheeraj Sharma",
       "amount": 0.7,
       "interestRate": 11,
