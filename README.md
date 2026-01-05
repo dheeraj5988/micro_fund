@@ -1,7 +1,7 @@
 # 🏦 MicroFund - P2P Microfinance Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Ethereum](https://img.shields.io/badge/Polygon-Sepolia-8247E5?style=for-the-badge&logo=ethereum)](https://polygon.technology/)
+[![Sepolia](https://img.shields.io/badge/Ethereum-Sepolia-627EEA?style=for-the-badge&logo=ethereum)](https://sepolia.etherscan.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
