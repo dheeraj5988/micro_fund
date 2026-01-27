@@ -8,7 +8,7 @@ A fully configured Hardhat-based blockchain development environment for the **Mi
 
 ## 🏗️ Architecture
 
-```
+\`\`\`
 ┌─────────────────────────────────────────┐
 │         Frontend (Next.js)              │
 │    - UI Components                      │
@@ -32,11 +32,11 @@ A fully configured Hardhat-based blockchain development environment for the **Mi
 │   - Contract Storage                    │
 │   - Transaction Ledger                  │
 └─────────────────────────────────────────┘
-```
+\`\`\`
 
 ## 📁 Directory Structure
 
-```
+\`\`\`
 blockchain/
 ├── contracts/
 │   ├── MicroFund.sol              # Main smart contract
@@ -60,7 +60,7 @@ blockchain/
 ├── DEPLOYMENT_GUIDE.md            # Deployment instructions
 ├── FRONTEND_INTEGRATION.md        # Frontend integration guide
 └── PROJECT_OVERVIEW.md            # This file
-```
+\`\`\`
 
 ## 🔑 Key Components
 
@@ -125,7 +125,7 @@ blockchain/
 
 ### Quick Start (5 minutes)
 
-```bash
+\`\`\`bash
 # 1. Install dependencies
 cd blockchain
 npm install
@@ -142,11 +142,11 @@ npm run test
 
 # 5. Deploy to testnet
 npm run deploy:sepolia
-```
+\`\`\`
 
 ### Development Workflow
 
-```bash
+\`\`\`bash
 # Start local network
 npx hardhat node
 
@@ -161,7 +161,7 @@ REPORT_GAS=true npm run test
 
 # Generate ABI for frontend
 npx ts-node scripts/generateABI.ts
-```
+\`\`\`
 
 ## 💼 Contract Economics
 
@@ -204,7 +204,7 @@ npx ts-node scripts/generateABI.ts
 
 ## 🔄 Loan Lifecycle Example
 
-```
+\`\`\`
 1. User Registration (Admin)
    └─> User created with 50 reputation score
 
@@ -232,7 +232,7 @@ Alternative:
    └─> Marked as "Defaulted"
    └─> Reputation -10
    └─> Lenders don't receive funds
-```
+\`\`\`
 
 ## 🔗 Integration Points
 
@@ -341,21 +341,21 @@ Before going to production:
 ## 🎬 Next Steps
 
 1. **Setup Development Environment**
-   ```bash
+   \`\`\`bash
    npm install
    cp .env.example .env
    npm run test
-   ```
+   \`\`\`
 
 2. **Deploy to Testnet**
-   ```bash
+   \`\`\`bash
    npm run deploy:sepolia
-   ```
+   \`\`\`
 
 3. **Generate ABI for Frontend**
-   ```bash
+   \`\`\`bash
    npx ts-node scripts/generateABI.ts
-   ```
+   \`\`\`
 
 4. **Integrate with Frontend**
    - Copy ABI to frontend

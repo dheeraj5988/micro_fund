@@ -4,9 +4,9 @@
 
 ### 1. Start Local Hardhat Node
 
-```bash
+\`\`\`bash
 npx hardhat node
-```
+\`\`\`
 
 This starts a local Ethereum network on `http://127.0.0.1:8545` with:
 - 20 pre-funded test accounts
@@ -17,47 +17,47 @@ This starts a local Ethereum network on `http://127.0.0.1:8545` with:
 
 In a new terminal:
 
-```bash
+\`\`\`bash
 npx hardhat run scripts/deploy.ts --network localhost
-```
+\`\`\`
 
 Save the contract address from the output.
 
 ### 3. Update Environment
 
-```bash
+\`\`\`bash
 # .env
 HARDHAT_NETWORK=localhost
 LOCAL_CONTRACT_ADDRESS=0x...
-```
+\`\`\`
 
 ## Running Tests
 
 ### Run All Tests
 
-```bash
+\`\`\`bash
 npm run test
-```
+\`\`\`
 
 ### Run Specific Test File
 
-```bash
+\`\`\`bash
 npx hardhat test test/MicroFund.test.ts
-```
+\`\`\`
 
 ### Run with Coverage
 
-```bash
+\`\`\`bash
 npx hardhat coverage
-```
+\`\`\`
 
 This generates a coverage report showing which lines of code are tested.
 
 ### Run with Gas Reporter
 
-```bash
+\`\`\`bash
 REPORT_GAS=true npm run test
-```
+\`\`\`
 
 Shows gas usage for each function call.
 
@@ -65,95 +65,95 @@ Shows gas usage for each function call.
 
 ### Compile Contracts
 
-```bash
+\`\`\`bash
 npm run compile
-```
+\`\`\`
 
 Creates artifacts in `artifacts/` directory.
 
 ### Generate TypeChain Types
 
-```bash
+\`\`\`bash
 npx hardhat typechain
-```
+\`\`\`
 
 Generates TypeScript types in `typechain-types/` for type-safe contract interaction.
 
 ### Lint Code
 
-```bash
+\`\`\`bash
 npx eslint contracts/**/*.sol
-```
+\`\`\`
 
 (Requires solhint: `npm install -D solhint`)
 
 ### Check Gas Optimization
 
-```bash
+\`\`\`bash
 REPORT_GAS=true npx hardhat test
-```
+\`\`\`
 
 ## Contract Development Workflow
 
 ### 1. Write Test First (TDD)
 
-```typescript
+\`\`\`typescript
 // test/MyFeature.test.ts
 describe("MyFeature", function () {
   it("should do something", async function () {
     // Test code
   });
 });
-```
+\`\`\`
 
 ### 2. Run Test (Will Fail)
 
-```bash
+\`\`\`bash
 npx hardhat test test/MyFeature.test.ts
-```
+\`\`\`
 
 ### 3. Implement Feature
 
-```solidity
+\`\`\`solidity
 // contracts/MicroFund.sol
 function myFeature() external {
   // Implementation
 }
-```
+\`\`\`
 
 ### 4. Run Test Again (Should Pass)
 
-```bash
+\`\`\`bash
 npx hardhat test test/MyFeature.test.ts
-```
+\`\`\`
 
 ### 5. Commit
 
-```bash
+\`\`\`bash
 git add .
 git commit -m "feat: add myFeature"
-```
+\`\`\`
 
 ## Debugging
 
 ### Using Hardhat Console
 
-```bash
+\`\`\`bash
 npx hardhat console
-```
+\`\`\`
 
 Then interact with contracts:
 
-```javascript
+\`\`\`javascript
 > const MicroFund = await ethers.getContractFactory("MicroFund");
 > const contract = await MicroFund.deploy();
 > const user = await contract.getUser("0x...");
 > console.log(user);
-```
+\`\`\`
 
 ### Using Logs in Tests
 
-```typescript
+\`\`\`typescript
 it("should trace execution", async function () {
   const tx = await contract.someFunction();
   const receipt = await tx.wait();
@@ -161,31 +161,31 @@ it("should trace execution", async function () {
   console.log("Gas used:", receipt?.gasUsed.toString());
   console.log("Events:", receipt?.logs);
 });
-```
+\`\`\`
 
 ### Using Events for Debugging
 
-```solidity
+\`\`\`solidity
 event Debug(string message, uint256 value);
 
 function myFunction() external {
   emit Debug("Function called", 42);
 }
-```
+\`\`\`
 
 Then listen in tests:
 
-```typescript
+\`\`\`typescript
 contract.on('Debug', (message, value) => {
   console.log(message, value.toString());
 });
-```
+\`\`\`
 
 ## Gas Optimization Tips
 
 ### 1. Use Structs Efficiently
 
-```solidity
+\`\`\`solidity
 // ❌ Bad - wastes storage
 struct Loan {
   uint8 status;
@@ -199,11 +199,11 @@ struct Loan {
   uint256 amount;
   uint8 status;
 }
-```
+\`\`\`
 
 ### 2. Cache Storage Variables
 
-```solidity
+\`\`\`solidity
 // ❌ Bad - reads from storage 3 times
 function check() external {
   if (loans[loanId].status == 1) {
@@ -220,23 +220,23 @@ function check() external {
     emit Event(loan.amount);
   }
 }
-```
+\`\`\`
 
 ### 3. Use Efficient Comparisons
 
-```solidity
+\`\`\`solidity
 // ❌ Bad
 require(amount > 0, "Amount must be greater than 0");
 
 // ✅ Good
 require(amount != 0, "Amount required");
-```
+\`\`\`
 
 ## Version Control
 
 ### .gitignore for Blockchain
 
-```
+\`\`\`
 node_modules/
 artifacts/
 cache/
@@ -247,19 +247,19 @@ typechain-types/
 coverage/
 *.log
 .DS_Store
-```
+\`\`\`
 
 ### Commit Messages
 
 Follow conventional commits:
 
-```
+\`\`\`
 feat: add loan repayment functionality
 fix: correct reputation score calculation
 test: add tests for loan funding
 docs: update deployment guide
 refactor: optimize storage packing
-```
+\`\`\`
 
 ## Security Checklist Before Deployment
 
@@ -277,18 +277,18 @@ refactor: optimize storage packing
 
 ### Safe ETH Transfer
 
-```solidity
+\`\`\`solidity
 // ✅ Recommended
 (bool success, ) = payable(recipient).call{value: amount}("");
 require(success, "Transfer failed");
 
 // ❌ Avoid
 recipient.transfer(amount);  // Limited gas, can fail
-```
+\`\`\`
 
 ### State Consistency
 
-```solidity
+\`\`\`solidity
 // ✅ Good - updates state atomically
 function transfer(address to, uint256 amount) external {
   require(balances[msg.sender] >= amount, "Insufficient balance");
@@ -302,13 +302,13 @@ function transfer(address to, uint256 amount) external {
   balances[msg.sender] -= amount;  // Could revert before this
   balances[to] += amount;
 }
-```
+\`\`\`
 
 ## Performance Optimization
 
 ### Batch Operations
 
-```solidity
+\`\`\`solidity
 // Efficient for processing multiple items
 function registerUsers(
   address[] calldata users,
@@ -320,11 +320,11 @@ function registerUsers(
     registerUser(users[i], usernames[i]);
   }
 }
-```
+\`\`\`
 
 ### Pagination for Large Datasets
 
-```typescript
+\`\`\`typescript
 // Frontend example
 async function getPaginatedLoans(page: number, pageSize: number = 10) {
   const loans = [];
@@ -341,7 +341,7 @@ async function getPaginatedLoans(page: number, pageSize: number = 10) {
   
   return loans;
 }
-```
+\`\`\`
 
 ## Useful Resources
 

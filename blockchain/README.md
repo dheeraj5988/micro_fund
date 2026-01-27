@@ -4,7 +4,7 @@ This directory contains the Solidity smart contracts for the MicroFund decentral
 
 ## Project Structure
 
-```
+\`\`\`
 blockchain/
 ├── contracts/
 │   └── MicroFund.sol       # Main smart contract
@@ -16,26 +16,26 @@ blockchain/
 ├── tsconfig.json           # TypeScript configuration
 ├── package.json            # Dependencies
 └── .env.example            # Environment variables template
-```
+\`\`\`
 
 ## Setup Instructions
 
 ### 1. Install Dependencies
 
-```bash
+\`\`\`bash
 cd blockchain
 npm install
 # or
 yarn install
-```
+\`\`\`
 
 ### 2. Configure Environment Variables
 
 Copy `.env.example` to `.env` and fill in the required values:
 
-```bash
+\`\`\`bash
 cp .env.example .env
-```
+\`\`\`
 
 You'll need:
 - **PRIVATE_KEY**: Your wallet's private key (from MetaMask or similar)
@@ -46,37 +46,37 @@ You'll need:
 
 ### 3. Compile Contracts
 
-```bash
+\`\`\`bash
 npm run compile
-```
+\`\`\`
 
 ### 4. Run Tests
 
-```bash
+\`\`\`bash
 npm run test
-```
+\`\`\`
 
 ## Deployment
 
 ### Deploy to Sepolia Testnet
 
-```bash
+\`\`\`bash
 npm run deploy:sepolia
-```
+\`\`\`
 
 ### Deploy to Polygon Amoy Testnet
 
-```bash
+\`\`\`bash
 npm run deploy:polygon
-```
+\`\`\`
 
 ### Deploy to Local Hardhat Network
 
-```bash
+\`\`\`bash
 npx hardhat node
 # In another terminal:
 npx hardhat run scripts/deploy.ts --network localhost
-```
+\`\`\`
 
 ## Contract Functions
 

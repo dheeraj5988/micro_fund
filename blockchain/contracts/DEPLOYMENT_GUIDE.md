@@ -19,25 +19,25 @@
 
 ### 2. Verify Configuration
 
-```bash
+\`\`\`bash
 # Check that hardhat.config.ts has correct networks
 cat hardhat.config.ts
-```
+\`\`\`
 
 ### 3. Compile Contracts
 
-```bash
+\`\`\`bash
 npm run compile
-```
+\`\`\`
 
 ### 4. Deploy to Sepolia
 
-```bash
+\`\`\`bash
 npm run deploy:sepolia
-```
+\`\`\`
 
 Expected output:
-```
+\`\`\`
 Deploying MicroFund to sepolia...
 Deploying contracts with account: 0x...
 Account balance: X.X ETH
@@ -45,16 +45,16 @@ MicroFund contract deployed to: 0x...
 Waiting for block confirmations...
 Verifying contract on block explorer...
 Contract verified successfully
-```
+\`\`\`
 
 ### 5. Save Deployment Address
 
 After successful deployment, save the contract address from the output. You'll need it for frontend integration.
 
 Example format for `.env` in the frontend:
-```
+\`\`\`
 NEXT_PUBLIC_MICROFUND_CONTRACT_ADDRESS=0x...
-```
+\`\`\`
 
 ## Troubleshooting
 
@@ -79,13 +79,13 @@ NEXT_PUBLIC_MICROFUND_CONTRACT_ADDRESS=0x...
 
 ### Get Contract Information
 
-```bash
+\`\`\`bash
 # Using ethers CLI (install: npm install -g ethers)
 ethers provider getNetwork
 
 # Check deployed contract
 ethers call 0x<CONTRACT_ADDRESS> users(0x<USER_ADDRESS>)
-```
+\`\`\`
 
 ### Manual Verification on Etherscan
 

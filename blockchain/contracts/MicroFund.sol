@@ -154,8 +154,7 @@ contract MicroFund is Ownable, ReentrancyGuard {
     function repayLoan(uint256 _loanId) external payable nonReentrant loanExists(_loanId) {
         Loan storage loan = loans[_loanId];
         require(loan.status == LoanStatus.Active, "Not active");
-        // Allow anyone to repay on behalf of borrower, or restrict to borrower:
-        // require(loan.borrower == msg.sender, "Only borrower"); 
+        require(block.timestamp <= loan.repaymentDeadline, "Repayment deadline passed");
 
         uint256 interest = (loan.amount * loan.interestRate) / 10000;
         uint256 totalRepayment = loan.amount + interest;
@@ -170,28 +169,84 @@ contract MicroFund is Ownable, ReentrancyGuard {
             emit ReputationUpdated(loan.borrower, users[loan.borrower].reputationScore);
         }
 
-        // Distribute to Lenders
+        // Distribute to Lenders with reentrancy protection
         address[] memory funders = loanFundersList[_loanId];
         for (uint256 i = 0; i < funders.length; i++) {
             address lender = funders[i];
             uint256 share = loanFunders[_loanId][lender];
             if(share > 0) {
                 uint256 payout = (totalRepayment * share) / loan.amount;
-                payable(lender).transfer(payout);
+                (bool success, ) = payable(lender).call{value: payout}("");
+                require(success, "Lender payout failed");
             }
         }
 
         // Refund excess
         if (msg.value > totalRepayment) {
-            payable(msg.sender).transfer(msg.value - totalRepayment);
+            (bool success, ) = payable(msg.sender).call{value: msg.value - totalRepayment}("");
+            require(success, "Refund failed");
         }
 
         emit LoanRepaid(_loanId, msg.sender, totalRepayment);
     }
 
-    // ... Keep remaining Admin/View functions (markLoanDefaulted, etc.) as they were ...
+    function markLoanDefaulted(uint256 _loanId) external onlyOwner loanExists(_loanId) {
+        Loan storage loan = loans[_loanId];
+        require(loan.status == LoanStatus.Active, "Not active");
+        require(block.timestamp > loan.repaymentDeadline, "Not past deadline");
+
+        loan.status = LoanStatus.Defaulted;
+        users[loan.borrower].defaultCount += 1;
+        
+        // Penalize reputation
+        if (users[loan.borrower].reputationScore > 0) {
+            users[loan.borrower].reputationScore = (users[loan.borrower].reputationScore > 10) 
+                ? users[loan.borrower].reputationScore - 10 
+                : 0;
+            emit ReputationUpdated(loan.borrower, users[loan.borrower].reputationScore);
+        }
+
+        emit LoanDefaulted(_loanId);
+    }
+
+    function withdrawPlatformFees() external onlyOwner nonReentrant {
+        require(platformFeeBalance > 0, "No fees to withdraw");
+        uint256 amount = platformFeeBalance;
+        platformFeeBalance = 0;
+        
+        (bool success, ) = payable(owner()).call{value: amount}("");
+        require(success, "Withdrawal failed");
+        
+        emit PlatformFeeWithdrawn(owner(), amount);
+    }
+
+    function setPlatformFeePercentage(uint256 _feePercentage) external onlyOwner {
+        require(_feePercentage <= 10, "Fee too high");
+        platformFeePercentage = _feePercentage;
+    }
+
+    // --- VIEW FUNCTIONS ---
+
+    function getLoan(uint256 _loanId) external view loanExists(_loanId) returns (Loan memory) {
+        return loans[_loanId];
+    }
+
+    function getUser(address _userAddress) external view returns (User memory) {
+        return users[_userAddress];
+    }
+
+    function getLoanFunders(uint256 _loanId) external view loanExists(_loanId) returns (address[] memory) {
+        return loanFundersList[_loanId];
+    }
+
+    function getLoanFunderShare(uint256 _loanId, address _lender) external view loanExists(_loanId) returns (uint256) {
+        return loanFunders[_loanId][_lender];
+    }
+
+    // --- UTILITY FUNCTIONS ---
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) { return a < b ? a : b; }
     function max(uint256 a, uint256 b) internal pure returns (uint256) { return a > b ? a : b; }
+    
     receive() external payable {}
 }

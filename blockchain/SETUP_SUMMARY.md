@@ -20,7 +20,7 @@
   - Used to determine lending credibility
 
 #### Key Structs:
-```solidity
+\`\`\`solidity
 struct Loan {
   - id, borrower, amount, interestRate
   - duration, purpose, status
@@ -32,7 +32,7 @@ struct User {
   - reputationScore (0-100)
   - totalBorrowed, totalRepaid, defaultCount
 }
-```
+\`\`\`
 
 #### Access Control:
 - **Admin Functions**: Owner-only operations (register, verify KYC, withdraw fees)
@@ -74,39 +74,39 @@ struct User {
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
-```bash
+\`\`\`bash
 cd blockchain
 npm install
-```
+\`\`\`
 
 ### 2. Configure Environment
-```bash
+\`\`\`bash
 cp .env.example .env
 # Edit .env with your values:
 # - PRIVATE_KEY
 # - SEPOLIA_RPC_URL
 # - POLYGON_AMOY_RPC_URL
 # - API keys for verification (optional)
-```
+\`\`\`
 
 ### 3. Compile Contracts
-```bash
+\`\`\`bash
 npm run compile
-```
+\`\`\`
 
 ### 4. Run Tests
-```bash
+\`\`\`bash
 npm run test
-```
+\`\`\`
 
 ### 5. Deploy to Testnet
-```bash
+\`\`\`bash
 # Sepolia
 npm run deploy:sepolia
 
 # Or Polygon Amoy
 npm run deploy:polygon
-```
+\`\`\`
 
 ## 📋 Environment Variables Needed
 
@@ -137,10 +137,10 @@ Add these to your `.env` file (copy from `.env.example`):
 
 ## 📊 Loan Lifecycle
 
-```
+\`\`\`
 Created → Funding → Active → Repaid
                   ↘ Defaulted (after deadline)
-```
+\`\`\`
 
 **States:**
 - **Funding**: Waiting for lenders (30-day limit)
@@ -154,9 +154,9 @@ After deployment, you'll need the contract address for frontend:
 
 1. Copy deployed contract address from deployment output
 2. Add to frontend environment variables:
-   ```
+   \`\`\`
    NEXT_PUBLIC_MICROFUND_CONTRACT_ADDRESS=0x...
-   ```
+   \`\`\`
 3. Use contract ABI from `abi/MicroFund.json`
 
 ## 📞 Getting Test ETH

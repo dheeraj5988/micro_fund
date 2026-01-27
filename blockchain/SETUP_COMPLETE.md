@@ -38,7 +38,7 @@ Congratulations! Your blockchain backend for the MicroFund platform has been ful
 
 ## 🚀 Quick Start (5 Minutes)
 
-```bash
+\`\`\`bash
 # 1. Navigate to blockchain folder
 cd blockchain
 
@@ -62,7 +62,7 @@ npm run test
 npm run deploy:sepolia
 
 # 7. Save the contract address and update frontend
-```
+\`\`\`
 
 ## 📋 Essential Next Steps
 
@@ -72,26 +72,26 @@ npm run deploy:sepolia
 
 ### 2. Configure Environment Variables
 Create `/blockchain/.env`:
-```env
+\`\`\`env
 PRIVATE_KEY=your_private_key_here
 SEPOLIA_RPC_URL=https://eth-sepolia.alchemyapi.io/v2/your-api-key
 POLYGON_AMOY_RPC_URL=https://polygon-amoy.g.alchemy.com/v2/your-api-key
 ETHERSCAN_API_KEY=your_etherscan_key  # Optional
 POLYGONSCAN_API_KEY=your_polygonscan_key  # Optional
-```
+\`\`\`
 
 ### 3. Deploy Contract
-```bash
+\`\`\`bash
 cd blockchain
 npm run deploy:sepolia
 # Save the contract address printed in the output!
-```
+\`\`\`
 
 ### 4. Generate ABI
-```bash
+\`\`\`bash
 npx ts-node scripts/generateABI.ts
 # Creates abi/MicroFund.json for frontend use
-```
+\`\`\`
 
 ### 5. Update Frontend
 - Copy contract address from deployment
@@ -101,7 +101,7 @@ npx ts-node scripts/generateABI.ts
 
 ## 🎯 Key Files & Their Purpose
 
-```
+\`\`\`
 blockchain/
 ├── contracts/MicroFund.sol          # Smart contract
 ├── scripts/deploy.ts                # Deployment script
@@ -117,7 +117,7 @@ blockchain/
 ├── FRONTEND_INTEGRATION.md          # Frontend examples
 ├── PROJECT_OVERVIEW.md              # Architecture
 └── SETUP_COMPLETE.md                # This file
-```
+\`\`\`
 
 ## 📚 Which File Should I Read?
 
@@ -144,19 +144,19 @@ blockchain/
 ### Contract Functions
 
 **For Admin (Owner)**
-```
+\`\`\`
 registerUser(address, username)
 verifyKYC(address)
 revokeKYC(address)
 withdrawPlatformFees()
-```
+\`\`\`
 
 **For Users (KYC Required)**
-```
+\`\`\`
 createLoan(amount, interestRate, duration, purpose)
 fundLoan(loanId)
 repayLoan(loanId)
-```
+\`\`\`
 
 ### Reputation System
 - Start: 50/100
@@ -174,7 +174,7 @@ repayLoan(loanId)
 
 ## 🛠️ Common Commands
 
-```bash
+\`\`\`bash
 # Compilation
 npm run compile
 
@@ -192,7 +192,7 @@ npx hardhat console
 
 # Utilities
 npx ts-node scripts/generateABI.ts
-```
+\`\`\`
 
 ## ✨ Features Included
 
