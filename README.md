@@ -84,7 +84,7 @@ Traditional microfinance platforms suffer from:
 
 ## 🏗️ Architecture
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────────────┐
 │                    MicroFund Platform                        │
 └─────────────────────────────────────────────────────────────┘
@@ -103,34 +103,34 @@ Traditional microfinance platforms suffer from:
                    │  Polygon Sepolia │
                    │  Testnet         │
                    └──────────────────┘
-```
+\`\`\`
 
 ### Data Flow
 
 1. **User Registration**:
-   ```
+   \`\`\`
    User → Frontend → API Route → users.json (Off-Chain)
-   ```
+   \`\`\`
 
 2. **Admin Verification**:
-   ```
+   \`\`\`
    Admin Portal → PATCH /api/kyc/verify → Update users.json → UI Reflects ✅
-   ```
+   \`\`\`
 
 3. **Loan Creation**:
-   ```
+   \`\`\`
    Borrower → Smart Contract → On-Chain Record + Emit Event
-   ```
+   \`\`\`
 
 4. **Loan Funding**:
-   ```
+   \`\`\`
    Lender → fundLoan() → ETH Transfer → Update Funding Status
-   ```
+   \`\`\`
 
 5. **Repayment Distribution**:
-   ```
+   \`\`\`
    Borrower → repayLoan() → Proportional Split → All Lenders Receive ETH
-   ```
+   \`\`\`
 
 ---
 
@@ -172,37 +172,37 @@ Traditional microfinance platforms suffer from:
 ### Installation
 
 1. **Clone the Repository**
-   ```bash
+   \`\`\`bash
    git clone https://github.com/dheeraj5988/micro_fund.git
    cd micro_fund
-   ```
+   \`\`\`
 
 2. **Install Dependencies**
-   ```bash
+   \`\`\`bash
    npm install
    # or
    yarn install
-   ```
+   \`\`\`
 
 3. **Setup Environment Variables**
    
    Create a `.env.local` file in the root directory:
-   ```env
+   \`\`\`env
    NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
    NEXT_PUBLIC_POLYGON_RPC=https://rpc-amoy.polygon.technology
    NEXT_PUBLIC_CHAIN_ID=80002
-   ```
+   \`\`\`
 
 4. **Initialize Data Directory**
-   ```bash
+   \`\`\`bash
    mkdir data
    touch data/users.json data/loans.json data/admin.json
-   ```
+   \`\`\`
 
 5. **Add Sample Data** (Optional)
    
    Copy this into `data/users.json`:
-   ```json
+   \`\`\`json
    {
      "users": [
        {
@@ -216,17 +216,17 @@ Traditional microfinance platforms suffer from:
        }
      ]
    }
-   ```
+   \`\`\`
 
 6. **Run Development Server**
-   ```bash
+   \`\`\`bash
    npm run dev
-   ```
+   \`\`\`
 
 7. **Open Application**
-   ```
+   \`\`\`
    Navigate to http://localhost:3000
-   ```
+   \`\`\`
 
 ### MetaMask Configuration
 
@@ -246,7 +246,7 @@ Traditional microfinance platforms suffer from:
 
 ## 📁 Project Structure
 
-```
+\`\`\`
 micro_fund/
 ├── app/
 │   ├── layout.tsx              # Root layout with persistent footer
@@ -283,7 +283,7 @@ micro_fund/
 ├── package.json
 ├── tsconfig.json
 └── README.md
-```
+\`\`\`
 
 ---
 
@@ -295,7 +295,7 @@ micro_fund/
 
 **Core Functions**:
 
-```solidity
+\`\`\`solidity
 // Create a new loan request
 function createLoan(
     uint256 _amount,
@@ -312,7 +312,7 @@ function repayLoan(uint256 _loanId) external payable
 
 // View loan details
 function getLoanById(uint256 _loanId) external view returns (Loan memory)
-```
+\`\`\`
 
 **Key Features**:
 - ✅ Multi-lender crowdfunding support
@@ -322,7 +322,7 @@ function getLoanById(uint256 _loanId) external view returns (Loan memory)
 
 ### Deployment
 
-```bash
+\`\`\`bash
 # Compile contract
 npx hardhat compile
 
@@ -331,7 +331,7 @@ npx hardhat run scripts/deploy.ts --network polygonSepolia
 
 # Verify on Polygonscan
 npx hardhat verify --network polygonSepolia DEPLOYED_CONTRACT_ADDRESS
-```
+\`\`\`
 
 ---
 
@@ -452,17 +452,17 @@ We welcome contributions from the community! Here's how you can help:
 ### Submitting Pull Requests
 1. Fork the repository
 2. Create a feature branch:
-   ```bash
+   \`\`\`bash
    git checkout -b feature/YourFeatureName
-   ```
+   \`\`\`
 3. Commit changes:
-   ```bash
+   \`\`\`bash
    git commit -m "Add: Your feature description"
-   ```
+   \`\`\`
 4. Push to your fork:
-   ```bash
+   \`\`\`bash
    git push origin feature/YourFeatureName
-   ```
+   \`\`\`
 5. Open a Pull Request with detailed description
 
 ### Code Style Guidelines
@@ -478,7 +478,7 @@ We welcome contributions from the community! Here's how you can help:
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-```
+\`\`\`
 MIT License
 
 Copyright (c) 2024 Dheeraj Sharma
@@ -486,7 +486,7 @@ Copyright (c) 2024 Dheeraj Sharma
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction...
-```
+\`\`\`
 
 ---
 
