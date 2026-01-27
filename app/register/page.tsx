@@ -19,13 +19,6 @@ export default function RegisterPage() {
         </div>
 
         <KYCForm />
-
-        <div className="mt-8 text-center">
-          <p className="text-sm text-slate-500">
-            By submitting this form, you agree to our verification process and terms of service.
-          </p>
-          <p className="text-xs text-slate-400 mt-2">For demo purposes only. Do not use real personal information.</p>
-        </div>
       </div>
     </div>
   )

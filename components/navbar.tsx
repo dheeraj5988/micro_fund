@@ -28,6 +28,12 @@ export function Navbar() {
                 Browse Loans
               </Link>
               <Link
+                href="/create"
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                Create Loan
+              </Link>
+              <Link
                 href="/register"
                 className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
               >
@@ -60,6 +66,13 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Browse Loans
+            </Link>
+            <Link
+              href="/create"
+              className="block text-sm font-medium text-slate-600 hover:text-emerald-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Create Loan
             </Link>
             <Link
               href="/register"
