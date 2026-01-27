@@ -3,88 +3,88 @@
 ## Essential Commands
 
 ### Installation & Setup
-```bash
+\`\`\`bash
 cd blockchain
 npm install
 cp .env.example .env
 # Edit .env with your values
-```
+\`\`\`
 
 ### Compilation & Testing
-```bash
+\`\`\`bash
 npm run compile          # Compile contracts
 npm run test            # Run all tests
 npm run test test/MicroFund.test.ts  # Run specific test
-```
+\`\`\`
 
 ### Local Development
-```bash
+\`\`\`bash
 npx hardhat node        # Start local blockchain
 npx hardhat run scripts/deploy.ts --network localhost
-```
+\`\`\`
 
 ### Testnet Deployment
-```bash
+\`\`\`bash
 npm run deploy:sepolia  # Deploy to Sepolia
 npm run deploy:polygon  # Deploy to Polygon Amoy
-```
+\`\`\`
 
 ### Utilities
-```bash
+\`\`\`bash
 npx ts-node scripts/generateABI.ts  # Generate ABI
 REPORT_GAS=true npm run test        # Show gas usage
-```
+\`\`\`
 
 ## Required Environment Variables
 
-```env
+\`\`\`env
 PRIVATE_KEY=                    # Your private key (from wallet)
 SEPOLIA_RPC_URL=              # Get from Alchemy or Infura
 POLYGON_AMOY_RPC_URL=         # Get from Alchemy or Infura
 ETHERSCAN_API_KEY=            # Get from etherscan.io
 POLYGONSCAN_API_KEY=          # Get from polygonscan.com
-```
+\`\`\`
 
 ## Smart Contract Addresses
 
 **Sepolia Testnet**
-```
+\`\`\`
 Contract Address: [Deploy and paste here]
-```
+\`\`\`
 
 **Polygon Amoy Testnet**
-```
+\`\`\`
 Contract Address: [Deploy and paste here]
-```
+\`\`\`
 
 ## Core Contract Functions
 
 ### Admin Functions (Owner Only)
-```solidity
+\`\`\`solidity
 registerUser(address user, string username)
 verifyKYC(address user)
 revokeKYC(address user)
 withdrawPlatformFees()
-```
+\`\`\`
 
 ### User Functions (KYC Required)
-```solidity
+\`\`\`solidity
 createLoan(uint256 amount, uint256 interestRate, uint256 duration, string purpose)
 fundLoan(uint256 loanId) payable
 repayLoan(uint256 loanId) payable
 markLoanDefaulted(uint256 loanId)
-```
+\`\`\`
 
 ### View Functions
-```solidity
+\`\`\`solidity
 getLoan(uint256 loanId)
 getUser(address user)
 getLoanFunders(uint256 loanId)
-```
+\`\`\`
 
 ## Event Emissions
 
-```solidity
+\`\`\`solidity
 UserRegistered(address user, string username)
 KYCVerified(address user)
 KYCRevoked(address user)
@@ -94,7 +94,7 @@ LoanActivated(uint256 loanId)
 LoanRepaid(uint256 loanId, address borrower, uint256 amount)
 LoanDefaulted(uint256 loanId)
 ReputationUpdated(address user, uint256 newScore)
-```
+\`\`\`
 
 ## Common Parameters
 
@@ -121,7 +121,7 @@ ReputationUpdated(address user, uint256 newScore)
 
 ## File Structure Quick Guide
 
-```
+\`\`\`
 contracts/
   └── MicroFund.sol          # Main contract (313 lines)
 
@@ -136,37 +136,37 @@ test/
 hardhat.config.ts            # Network configuration
 package.json                 # Dependencies
 .env.example                 # Environment template
-```
+\`\`\`
 
 ## Loan Status Enum
 
-```solidity
+\`\`\`solidity
 0 = Funding        (Waiting for lenders)
 1 = Active         (Fully funded, repayment period)
 2 = Repaid         (Successfully completed)
 3 = Defaulted      (Repayment deadline missed)
-```
+\`\`\`
 
 ## Reputation System
 
-```
+\`\`\`
 Initial Score:       50/100
 Successful Repay:    +5 (max 100)
 Default:            -10 (min 0)
 Max Score:          100
 Min Score:          0
-```
+\`\`\`
 
 ## Gas Estimates (Sepolia)
 
-```
+\`\`\`
 Register User:      ~50K gas
 Verify KYC:         ~35K gas
 Create Loan:        ~120K gas
 Fund Loan:          ~150K gas
 Repay Loan:         ~180K gas
 Mark Default:       ~50K gas
-```
+\`\`\`
 
 ## Error Messages
 
@@ -182,24 +182,24 @@ Mark Default:       ~50K gas
 ## Development Tools
 
 ### Hardhat Console
-```bash
+\`\`\`bash
 npx hardhat console
 > const contract = await ethers.getContractFactory("MicroFund")
 > const deployed = await contract.deploy()
-```
+\`\`\`
 
 ### Compile & Check
-```bash
+\`\`\`bash
 npx hardhat compile --force
 npx hardhat clean
 npx hardhat artifacts
-```
+\`\`\`
 
 ### Network Info
-```bash
+\`\`\`bash
 npx hardhat accounts           # List test accounts
 npx hardhat network-info       # Network details
-```
+\`\`\`
 
 ## Documentation Index
 
@@ -215,11 +215,11 @@ npx hardhat network-info       # Network details
 
 ## Frontend Integration URLs
 
-```env
+\`\`\`env
 NEXT_PUBLIC_MICROFUND_CONTRACT_ADDRESS=0x...
 NEXT_PUBLIC_MICROFUND_CONTRACT_ABI=path/to/abi.json
 NEXT_PUBLIC_CHAIN_ID=11155111  # Sepolia: 11155111, Polygon Amoy: 80002
-```
+\`\`\`
 
 ## Troubleshooting Quick Links
 
@@ -231,7 +231,7 @@ NEXT_PUBLIC_CHAIN_ID=11155111  # Sepolia: 11155111, Polygon Amoy: 80002
 
 ## 30-Second Deployment
 
-```bash
+\`\`\`bash
 # 1. Setup
 npm install && cp .env.example .env
 # (Edit .env with your keys)
@@ -240,7 +240,7 @@ npm install && cp .env.example .env
 npm run deploy:sepolia
 
 # 3. Copy address and integrate with frontend
-```
+\`\`\`
 
 ## Status Checklist Before Going Live
 

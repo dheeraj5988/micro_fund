@@ -32,10 +32,12 @@
 
 **MicroFund** is a hybrid Web2.5 platform that revolutionizes microfinance by combining:
 
-- **Blockchain Transparency**: All financial transactions recorded on Polygon Sepolia
+- **Blockchain Transparency**: All financial transactions recorded on Ethereum Sepolia Testnet
 - **Privacy-First KYC**: Sensitive identity data stored off-chain in compliance with data protection regulations
-- **Reputation-Based Trust**: Dynamic scoring system that rewards good borrowers with better rates
+- **Reputation-Based Trust**: Dynamic scoring system (0-100 points) that rewards good borrowers with better rates
 - **Crowdfunding Model**: Multiple lenders can fund a single loan, distributing risk
+- **Smart Contract Escrow**: Funds held securely until loan is fully funded
+- **Automatic Interest Distribution**: Lender payouts calculated based on their contribution percentage
 
 ### Why MicroFund?
 

@@ -16,12 +16,13 @@ export async function registerAndVerifyUser(
 ) {
   const contract = await getContractInstance(contractAddress);
   const [owner] = await ethers.getSigners();
+  const signer = await ethers.getSigner(userAddress);
 
   console.log(
     `Registering user ${userAddress} with username: ${username}...`
   );
 
-  const registerTx = await contract.connect(owner).registerUser(userAddress, username);
+  const registerTx = await contract.connect(signer).registerUser(username);
   await registerTx.wait();
   console.log(`✓ User registered`);
 

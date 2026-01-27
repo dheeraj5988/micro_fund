@@ -15,39 +15,39 @@ This document explains how to integrate the MicroFund smart contract with the fr
 
 After deployment, add the contract address to frontend environment variables:
 
-```env
+\`\`\`env
 # .env.local or .env
 NEXT_PUBLIC_MICROFUND_CONTRACT_ADDRESS=0x1234567890123456789012345678901234567890
 NEXT_PUBLIC_MICROFUND_CHAIN_ID=11155111  # Sepolia
 # or
 NEXT_PUBLIC_MICROFUND_CHAIN_ID=80002     # Polygon Amoy
-```
+\`\`\`
 
 ### 2. Export Contract ABI
 
 Generate the ABI for frontend use:
 
-```bash
+\`\`\`bash
 cd blockchain
 npm run compile  # If not already compiled
 npx ts-node scripts/generateABI.ts
-```
+\`\`\`
 
 This creates `blockchain/abi/MicroFund.json`
 
 ### 3. Copy ABI to Frontend
 
-```bash
+\`\`\`bash
 cp blockchain/abi/MicroFund.json ../public/abi/
 # or
 cp blockchain/abi/MicroFund.ts ../lib/
-```
+\`\`\`
 
 ## Contract Interaction Examples
 
 ### Initialize Web3 Connection
 
-```typescript
+\`\`\`typescript
 import { ethers } from 'ethers';
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_MICROFUND_CONTRACT_ADDRESS!;
@@ -64,11 +64,11 @@ export async function getContract() {
 
   return { contract, provider, signer };
 }
-```
+\`\`\`
 
 ### User Registration (Admin)
 
-```typescript
+\`\`\`typescript
 async function registerUser(userAddress: string, username: string) {
   const { contract } = await getContract();
   
@@ -86,11 +86,11 @@ async function verifyKYC(userAddress: string) {
   
   return receipt;
 }
-```
+\`\`\`
 
 ### Get User Information
 
-```typescript
+\`\`\`typescript
 async function getUserInfo(userAddress: string) {
   const { contract } = await getContract();
   
@@ -105,11 +105,11 @@ async function getUserInfo(userAddress: string) {
     defaultCount: user.defaultCount.toNumber(),
   };
 }
-```
+\`\`\`
 
 ### Create a Loan
 
-```typescript
+\`\`\`typescript
 async function createLoan(
   amount: string,        // in ETH
   interestRate: number,  // e.g., 5 for 5%
@@ -132,11 +132,11 @@ async function createLoan(
   const receipt = await tx.wait();
   return receipt;
 }
-```
+\`\`\`
 
 ### Fund a Loan
 
-```typescript
+\`\`\`typescript
 async function fundLoan(loanId: number, amount: string) {
   const { contract } = await getContract();
   
@@ -149,11 +149,11 @@ async function fundLoan(loanId: number, amount: string) {
   const receipt = await tx.wait();
   return receipt;
 }
-```
+\`\`\`
 
 ### Repay a Loan
 
-```typescript
+\`\`\`typescript
 async function repayLoan(loanId: number, repaymentAmount: string) {
   const { contract } = await getContract();
   
@@ -166,11 +166,11 @@ async function repayLoan(loanId: number, repaymentAmount: string) {
   const receipt = await tx.wait();
   return receipt;
 }
-```
+\`\`\`
 
 ### Get Loan Details
 
-```typescript
+\`\`\`typescript
 async function getLoanDetails(loanId: number) {
   const { contract } = await getContract();
   
@@ -191,11 +191,11 @@ async function getLoanDetails(loanId: number) {
     fundingDeadline: new Date(Number(loan.fundingDeadline) * 1000),
   };
 }
-```
+\`\`\`
 
 ### Listen to Events
 
-```typescript
+\`\`\`typescript
 async function listenToLoanEvents() {
   const { contract } = await getContract();
   
@@ -227,11 +227,11 @@ async function listenToLoanEvents() {
     });
   });
 }
-```
+\`\`\`
 
 ## React Hooks Example
 
-```typescript
+\`\`\`typescript
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
@@ -271,7 +271,7 @@ export function useMicroFund() {
 
   return { contract, signer, account };
 }
-```
+\`\`\`
 
 ## Testing the Integration
 
@@ -315,13 +315,13 @@ export function useMicroFund() {
 
 Add these to your environment after deploying to testnets:
 
-```env
+\`\`\`env
 # Sepolia Testnet
 NEXT_PUBLIC_MICROFUND_SEPOLIA_ADDRESS=0x...
 
 # Polygon Amoy Testnet
 NEXT_PUBLIC_MICROFUND_POLYGON_ADDRESS=0x...
-```
+\`\`\`
 
 ---
 
