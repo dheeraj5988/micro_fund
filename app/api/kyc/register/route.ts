@@ -6,7 +6,12 @@ interface User {
   walletAddress: string
   firstName: string
   lastName: string
-  aadharNumber: string
+  email: string
+  country: string
+  documentType: string
+  documentNumber: string
+  frontImage?: string
+  backImage?: string
   isVerified: boolean
   reputationScore: number
   registeredAt: string
@@ -34,7 +39,10 @@ function readUsers(): UsersData {
           walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f1db38",
           firstName: "Dheeraj",
           lastName: "Sharma",
-          aadharNumber: "1234-5678-9012",
+          email: "dheeraj@microfund.io",
+          country: "India",
+          documentType: "aadhar-card",
+          documentNumber: "1234-5678-9012",
           isVerified: true,
           reputationScore: 550,
           registeredAt: "2024-01-05T10:30:00Z",
@@ -43,7 +51,10 @@ function readUsers(): UsersData {
           walletAddress: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
           firstName: "Srijita",
           lastName: "Seth",
-          aadharNumber: "2345-6789-0123",
+          email: "srijita@microfund.io",
+          country: "India",
+          documentType: "passport",
+          documentNumber: "P2345678",
           isVerified: false,
           reputationScore: 500,
           registeredAt: "2024-01-06T14:20:00Z",
@@ -52,7 +63,10 @@ function readUsers(): UsersData {
           walletAddress: "0xdD2FD4581271e230360230F9337D5c0430Bf44C0",
           firstName: "Piyush",
           lastName: "Mishra",
-          aadharNumber: "3456-7890-1234",
+          email: "piyush@microfund.io",
+          country: "India",
+          documentType: "driving-license",
+          documentNumber: "DL3456789",
           isVerified: true,
           reputationScore: 600,
           registeredAt: "2024-01-07T09:15:00Z",
@@ -74,9 +88,10 @@ function writeUsers(data: UsersData) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { walletAddress, firstName, lastName, aadharNumber } = body
+    const { walletAddress, firstName, lastName, email, country, documentType, documentNumber, frontImage, backImage } =
+      body
 
-    if (!walletAddress || !firstName || !lastName || !aadharNumber) {
+    if (!walletAddress || !firstName || !lastName || !email || !country || !documentType || !documentNumber) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 })
     }
 
@@ -84,9 +99,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Names must be at least 2 characters" }, { status: 400 })
     }
 
-    const aadharClean = aadharNumber.replace(/-/g, "")
-    if (aadharClean.length !== 12 || !/^\d+$/.test(aadharClean)) {
-      return NextResponse.json({ error: "Aadhar must be 12 digits" }, { status: 400 })
+    if (!email.includes("@")) {
+      return NextResponse.json({ error: "Valid email is required" }, { status: 400 })
     }
 
     const usersData = readUsers()
@@ -100,7 +114,12 @@ export async function POST(request: NextRequest) {
       walletAddress,
       firstName,
       lastName,
-      aadharNumber,
+      email,
+      country,
+      documentType,
+      documentNumber,
+      frontImage,
+      backImage,
       isVerified: false,
       reputationScore: 500,
       registeredAt: new Date().toISOString(),

@@ -1,5 +1,7 @@
 "use client"
 
+import { Label } from "@/components/ui/label"
+
 import type React from "react"
 
 import { useState, useEffect } from "react"
@@ -23,13 +25,23 @@ interface User {
   walletAddress: string
   firstName: string
   lastName: string
-  aadharNumber: string
+  email: string
+  country: string
+  documentType: string
+  documentNumber: string
+  frontImage?: string
+  backImage?: string
   isVerified: boolean
   reputationScore: number
   registeredAt: string
+  aadharNumber: string
 }
 
 const ADMIN_PASSWORD = "microfund2026"
+
+const maskAadhar = (aadharNumber: string) => {
+  return aadharNumber.slice(0, 4) + "XXXX" + aadharNumber.slice(-4)
+}
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -46,6 +58,13 @@ export default function AdminPage() {
     open: false,
     user: null,
     action: "approve",
+  })
+  const [documentsDialog, setDocumentsDialog] = useState<{
+    open: boolean
+    user: User | null
+  }>({
+    open: false,
+    user: null,
   })
   const { toast } = useToast()
 
@@ -147,12 +166,8 @@ export default function AdminPage() {
     }
   }
 
-  const maskAadhar = (aadhar: string) => {
-    const parts = aadhar.split("-")
-    if (parts.length === 3) {
-      return `XXXX-XXXX-${parts[2]}`
-    }
-    return "XXXX-XXXX-XXXX"
+  const openDocumentsDialog = (user: User) => {
+    setDocumentsDialog({ open: true, user })
   }
 
   const truncateAddress = (address: string) => {
@@ -297,10 +312,10 @@ export default function AdminPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Name</TableHead>
-                          <TableHead>Aadhar</TableHead>
-                          <TableHead>Wallet</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead className="text-right">Action</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Country</TableHead>
+                          <TableHead>Document</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -309,25 +324,35 @@ export default function AdminPage() {
                             <TableCell className="font-medium">
                               {user.firstName} {user.lastName}
                             </TableCell>
-                            <TableCell className="font-mono text-xs">{maskAadhar(user.aadharNumber)}</TableCell>
-                            <TableCell className="font-mono text-xs">{truncateAddress(user.walletAddress)}</TableCell>
-                            <TableCell className="text-xs">{formatDate(user.registeredAt)}</TableCell>
+                            <TableCell className="text-xs">{user.email}</TableCell>
+                            <TableCell className="text-xs">{user.country}</TableCell>
+                            <TableCell className="text-xs">{user.documentType}</TableCell>
                             <TableCell className="text-right">
-                              <Button
-                                size="sm"
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                onClick={() => openConfirmDialog(user, "approve")}
-                                disabled={processingWallet === user.walletAddress}
-                              >
-                                {processingWallet === user.walletAddress ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <UserCheck className="mr-1 h-4 w-4" />
-                                    Approve
-                                  </>
-                                )}
-                              </Button>
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openDocumentsDialog(user)}
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 bg-transparent"
+                                >
+                                  View Docs
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  onClick={() => openConfirmDialog(user, "approve")}
+                                  disabled={processingWallet === user.walletAddress}
+                                >
+                                  {processingWallet === user.walletAddress ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <>
+                                      <UserCheck className="mr-1 h-4 w-4" />
+                                      Approve
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -361,9 +386,9 @@ export default function AdminPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Name</TableHead>
-                          <TableHead>Aadhar</TableHead>
-                          <TableHead>Wallet</TableHead>
-                          <TableHead>Date</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Country</TableHead>
+                          <TableHead>Document</TableHead>
                           <TableHead className="text-right">Action</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -376,9 +401,9 @@ export default function AdminPage() {
                                 {user.firstName} {user.lastName}
                               </div>
                             </TableCell>
-                            <TableCell className="font-mono text-xs">{maskAadhar(user.aadharNumber)}</TableCell>
-                            <TableCell className="font-mono text-xs">{truncateAddress(user.walletAddress)}</TableCell>
-                            <TableCell className="text-xs">{formatDate(user.registeredAt)}</TableCell>
+                            <TableCell className="text-xs">{user.email}</TableCell>
+                            <TableCell className="text-xs">{user.country}</TableCell>
+                            <TableCell className="text-xs">{user.documentType}</TableCell>
                             <TableCell className="text-right">
                               <Button
                                 size="sm"
@@ -442,6 +467,59 @@ export default function AdminPage() {
               {confirmDialog.action === "approve" ? "Approve" : "Revoke"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Documents Dialog */}
+      <Dialog open={documentsDialog.open} onOpenChange={(open) => setDocumentsDialog({ ...documentsDialog, open })}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Document Verification</DialogTitle>
+            <DialogDescription>
+              {documentsDialog.user?.firstName} {documentsDialog.user?.lastName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document Type</Label>
+                <p className="text-sm text-slate-600">{documentsDialog.user?.documentType}</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document Number</Label>
+                <p className="text-sm text-slate-600 font-mono">{documentsDialog.user?.documentNumber}</p>
+              </div>
+            </div>
+
+            <div className="border-t pt-4 space-y-4">
+              <div>
+                <Label className="text-sm font-medium">Front Side of Document</Label>
+                <div className="mt-2 bg-slate-100 rounded-lg p-4 flex items-center justify-center min-h-48">
+                  {documentsDialog.user?.frontImage ? (
+                    <img src={documentsDialog.user.frontImage || "/placeholder.svg"} alt="Front" className="max-h-48 rounded" />
+                  ) : (
+                    <p className="text-slate-500 text-sm">No image available</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Back Side of Document</Label>
+                <div className="mt-2 bg-slate-100 rounded-lg p-4 flex items-center justify-center min-h-48">
+                  {documentsDialog.user?.backImage ? (
+                    <img src={documentsDialog.user.backImage || "/placeholder.svg"} alt="Back" className="max-h-48 rounded" />
+                  ) : (
+                    <p className="text-slate-500 text-sm">No image available</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setDocumentsDialog({ ...documentsDialog, open: false })}>
+              Close
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useWallet } from "@/hooks/use-wallet"
+import { useVerifiedUser } from "@/hooks/use-verified-user"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -25,6 +26,8 @@ export function WalletButton() {
     truncateAddress,
     error,
   } = useWallet()
+
+  const { userName, isVerified } = useVerifiedUser()
 
   const [copied, setCopied] = useState(false)
 
@@ -64,7 +67,7 @@ export function WalletButton() {
           <Button variant="outline" className="font-mono text-sm bg-transparent">
             <div className="flex items-center gap-2">
               <div className="h-6 w-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600" />
-              <span>{address ? truncateAddress(address) : ""}</span>
+              <span>{isVerified && userName ? userName : address ? truncateAddress(address) : ""}</span>
               <ChevronDown className="h-4 w-4 text-slate-400" />
             </div>
           </Button>
@@ -73,6 +76,11 @@ export function WalletButton() {
           <div className="px-3 py-2">
             <p className="text-xs text-slate-500">Balance</p>
             <p className="font-semibold text-lg">{balance || "0.0000"} ETH</p>
+          </div>
+          <DropdownMenuSeparator />
+          <div className="px-3 py-2">
+            <p className="text-xs text-slate-500">Wallet Address</p>
+            <p className="font-mono text-xs text-slate-700 break-all">{address}</p>
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={copyAddress} className="cursor-pointer">
