@@ -1,14 +1,16 @@
 // Smart Contract Integration Utility
-// Network: Polygon Sepolia (Chain ID: 80002)
-// This is a demo implementation with mock data
+// Network: Ethereum Sepolia (Chain ID: 11155111)
+// This is a demo implementation with mock data. The actual contract address
+// and RPC URL should be provided via environment variables for real deployments.
 
-export const CONTRACT_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678" // Placeholder
+export const CONTRACT_ADDRESS =
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0x0000000000000000000000000000000000000000"
 
-export const POLYGON_SEPOLIA_CONFIG = {
-  chainId: 80002,
-  name: "Polygon Amoy Testnet",
-  rpcUrl: "https://rpc-amoy.polygon.technology",
-  explorerUrl: "https://www.oklink.com/amoy",
+export const ETHEREUM_SEPOLIA_CONFIG = {
+  chainId: 11155111,
+  name: "Ethereum Sepolia Testnet",
+  rpcUrl: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ?? "",
+  explorerUrl: "https://sepolia.etherscan.io",
 }
 
 // Minimal ABI for read operations

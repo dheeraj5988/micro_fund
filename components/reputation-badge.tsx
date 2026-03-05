@@ -8,12 +8,14 @@ interface ReputationBadgeProps {
 }
 
 function getReputationLevel(score: number) {
-  if (score >= 701) {
+  if (score >= 80) {
     return { label: "Elite", color: "bg-emerald-100 text-emerald-700 border-emerald-200" }
-  } else if (score >= 601) {
+  } else if (score >= 50) {
     return { label: "Trusted", color: "bg-blue-100 text-blue-700 border-blue-200" }
+  } else if (score >= 30) {
+    return { label: "At Risk", color: "bg-amber-100 text-amber-700 border-amber-200" }
   } else {
-    return { label: "New Borrower", color: "bg-amber-100 text-amber-700 border-amber-200" }
+    return { label: "Restricted", color: "bg-red-100 text-red-700 border-red-200" }
   }
 }
 

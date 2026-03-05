@@ -54,7 +54,7 @@
       "email": "ss1234@srmist.edu.in",
       "phone": "+91-9876543211",
       "registrationNumber": "RA2211027010036",
-      "isVerified": false,
+      "isVerified": true,
       "reputationScore": 500,
       "kycStatus": "PENDING",
       "kycDocuments": {

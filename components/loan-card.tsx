@@ -100,8 +100,11 @@ export function LoanCard({
               <TrendingUp className="h-4 w-4 text-blue-600" />
             </div>
             <div>
-              <p className="text-slate-500 text-xs">Interest</p>
-              <p className="font-semibold text-slate-900">{interestRate}% APR</p>
+              <p className="text-slate-500 text-xs">Dual Yield</p>
+              <p className="font-semibold text-slate-900">Loan Interest: {interestRate}% APY</p>
+              <p className="text-[11px] text-slate-500">
+                Total lender return = Loan Interest (APY) + ETH asset appreciation.
+              </p>
             </div>
           </div>
 
@@ -165,8 +168,11 @@ export function LoanCard({
                   <p className="font-semibold">{amount} ETH</p>
                 </div>
                 <div>
-                  <p className="text-slate-500">Interest Rate</p>
-                  <p className="font-semibold">{interestRate}% APR</p>
+                  <p className="text-slate-500">Dual Yield</p>
+                  <p className="font-semibold">Loan Interest: {interestRate}% APY</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Total lender return = Loan Interest (APY) + ETH asset appreciation.
+                  </p>
                 </div>
                 <div>
                   <p className="text-slate-500">Duration</p>

@@ -32,7 +32,7 @@
 
 **MicroFund** is a hybrid Web2.5 platform that revolutionizes microfinance by combining:
 
-- **Blockchain Transparency**: All financial transactions recorded on Polygon Sepolia
+- **Blockchain Transparency**: All financial transactions recorded on Ethereum Sepolia
 - **Privacy-First KYC**: Sensitive identity data stored off-chain in compliance with data protection regulations
 - **Reputation-Based Trust**: Dynamic scoring system that rewards good borrowers with better rates
 - **Crowdfunding Model**: Multiple lenders can fund a single loan, distributing risk
@@ -47,7 +47,7 @@ Traditional microfinance platforms suffer from:
 
 **MicroFund solves these problems through:**
 - ✅ Immutable on-chain loan records
-- ✅ Near-zero transaction fees (Polygon gas costs)
+- ✅ Low transaction fees on Ethereum Sepolia testnet
 - ✅ Built-in reputation system
 - ✅ Instant blockchain settlements
 
@@ -99,9 +99,9 @@ Traditional microfinance platforms suffer from:
         │                   │                   │
         └───────────────────┴───────────────────┘
                             │
-                   ┌────────▼────────┐
-                   │  Polygon Sepolia │
-                   │  Testnet         │
+                   ┌────────▼─────────┐
+                   │ Ethereum Sepolia │
+                   │ Testnet          │
                    └──────────────────┘
 ```
 
@@ -167,7 +167,7 @@ Traditional microfinance platforms suffer from:
 
 - **Node.js**: v18.0 or higher
 - **MetaMask**: Browser extension installed
-- **Polygon Sepolia ETH**: Get testnet tokens from [Polygon Faucet](https://faucet.polygon.technology/)
+- **Ethereum Sepolia ETH**: Get testnet tokens from public Sepolia faucets (for example via Alchemy, Infura, or sepoliafaucet.com)
 
 ### Installation
 
@@ -188,9 +188,9 @@ Traditional microfinance platforms suffer from:
    
    Create a `.env.local` file in the root directory:
    ```env
-   NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddress
-   NEXT_PUBLIC_POLYGON_RPC=https://rpc-amoy.polygon.technology
-   NEXT_PUBLIC_CHAIN_ID=80002
+   NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourContractAddressOnSepolia
+   NEXT_PUBLIC_SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_KEY
+   NEXT_PUBLIC_CHAIN_ID=11155111
    ```
 
 4. **Initialize Data Directory**
@@ -230,15 +230,15 @@ Traditional microfinance platforms suffer from:
 
 ### MetaMask Configuration
 
-1. Add Polygon Sepolia Network:
-   - **Network Name**: Polygon Sepolia
-   - **RPC URL**: `https://rpc-amoy.polygon.technology`
-   - **Chain ID**: `80002`
-   - **Currency Symbol**: `POL`
-   - **Block Explorer**: `https://amoy.polygonscan.com/`
+1. Add Ethereum Sepolia Network:
+   - **Network Name**: Ethereum Sepolia
+   - **RPC URL**: `https://sepolia.infura.io/v3/YOUR_INFURA_KEY`
+   - **Chain ID**: `11155111`
+   - **Currency Symbol**: `ETH`
+   - **Block Explorer**: `https://sepolia.etherscan.io/`
 
 2. Get Testnet Tokens:
-   - Visit [Polygon Faucet](https://faucet.polygon.technology/)
+   - Use a public Sepolia faucet (Alchemy, Infura, or similar)
    - Enter your wallet address
    - Receive free testnet ETH
 
