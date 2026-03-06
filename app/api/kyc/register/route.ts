@@ -98,21 +98,20 @@ export async function POST(request: NextRequest) {
       .insert({
         wallet_address: walletAddress.toLowerCase(),
         full_name: fullName,
-        email,
-        country,
-        document_type: documentType,
-        document_number: documentNumber,
+        // TODO: capture DOB in the form and persist here when available
+        dob: null,
         id_front_url: frontImageUrl,
         id_back_url: backImageUrl,
-        is_verified: false,
-        reputation_score: 500,
       })
       .select()
       .limit(1)
 
     if (insertError || !inserted || inserted.length === 0) {
       console.error("Error saving user:", insertError)
-      return NextResponse.json({ error: "Failed to save user" }, { status: 500 })
+      return NextResponse.json(
+        { error: insertError?.message || "Failed to save user" },
+        { status: 500 },
+      )
     }
 
     return NextResponse.json(

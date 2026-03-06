@@ -24,16 +24,10 @@ import { supabase } from "@/lib/supabase"
 interface User {
   wallet_address: string
   full_name: string
-  email: string
-  country: string
-  document_type: string
-  document_number: string
+  dob?: string | null
   id_front_url?: string | null
   id_back_url?: string | null
   is_verified: boolean
-  reputation_score: number
-  created_at: string
-  dob?: string | null
 }
 
 const ADMIN_PASSWORD = "microfund2026"
@@ -85,10 +79,8 @@ export default function AdminPage() {
     try {
       const { data, error } = await supabase
         .from("kyc_users")
-        .select(
-          "wallet_address, full_name, email, country, document_type, document_number, id_front_url, id_back_url, is_verified, reputation_score, created_at, dob",
-        )
-        .order("created_at", { ascending: false })
+        .select("wallet_address, full_name, dob, id_front_url, id_back_url, is_verified")
+        .order("wallet_address", { ascending: true })
 
       if (error) {
         throw error
@@ -320,21 +312,15 @@ export default function AdminPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Country</TableHead>
-                          <TableHead>Document</TableHead>
+                          <TableHead>Wallet</TableHead>
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {pendingUsers.map((user) => (
-                        <TableRow key={user.wallet_address}>
-                            <TableCell className="font-medium">
-                              {user.full_name}
-                            </TableCell>
-                            <TableCell className="text-xs">{user.email}</TableCell>
-                            <TableCell className="text-xs">{user.country}</TableCell>
-                            <TableCell className="text-xs">{user.document_type}</TableCell>
+                          <TableRow key={user.wallet_address}>
+                            <TableCell className="font-medium">{user.full_name}</TableCell>
+                            <TableCell className="text-xs font-mono">{truncateAddress(user.wallet_address)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
                                 <Button
@@ -349,9 +335,9 @@ export default function AdminPage() {
                                   size="sm"
                                   className="bg-emerald-600 hover:bg-emerald-700 text-white"
                                   onClick={() => openConfirmDialog(user, "approve")}
-                                  disabled={processingWallet === user.walletAddress}
+                                  disabled={processingWallet === user.wallet_address}
                                 >
-                                  {processingWallet === user.walletAddress ? (
+                                  {processingWallet === user.wallet_address ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   ) : (
                                     <>
@@ -394,9 +380,7 @@ export default function AdminPage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Name</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Country</TableHead>
-                          <TableHead>Document</TableHead>
+                          <TableHead>Wallet</TableHead>
                           <TableHead className="text-right">Action</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -409,18 +393,18 @@ export default function AdminPage() {
                                 {user.full_name}
                               </div>
                             </TableCell>
-                            <TableCell className="text-xs">{user.email}</TableCell>
-                            <TableCell className="text-xs">{user.country}</TableCell>
-                            <TableCell className="text-xs">{user.document_type}</TableCell>
+                            <TableCell className="text-xs font-mono">
+                              {truncateAddress(user.wallet_address)}
+                            </TableCell>
                             <TableCell className="text-right">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
                                 onClick={() => openConfirmDialog(user, "revoke")}
-                                disabled={processingWallet === user.walletAddress}
+                                disabled={processingWallet === user.wallet_address}
                               >
-                                {processingWallet === user.walletAddress ? (
+                                {processingWallet === user.wallet_address ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
                                   <>
@@ -490,12 +474,14 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Document Type</Label>
-                <p className="text-sm text-slate-600">{documentsDialog.user?.document_type}</p>
+                <Label className="text-sm font-medium">Wallet Address</Label>
+                <p className="text-sm text-slate-600 font-mono">
+                  {documentsDialog.user && truncateAddress(documentsDialog.user.wallet_address)}
+                </p>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Document Number</Label>
-                <p className="text-sm text-slate-600 font-mono">{documentsDialog.user?.document_number}</p>
+                <Label className="text-sm font-medium">Date of Birth</Label>
+                <p className="text-sm text-slate-600">{documentsDialog.user?.dob || "Not provided"}</p>
               </div>
             </div>
 
