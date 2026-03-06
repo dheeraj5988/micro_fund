@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import Link from "next/link"
 import { useWallet } from "@/hooks/use-wallet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { CheckCircle2, AlertCircle, Loader2, Shield, User, CreditCard, Wallet, Upload } from "lucide-react"
+import { CheckCircle2, AlertCircle, Loader2, Shield, User, CreditCard, Wallet, Upload, Clock, ArrowRight } from "lucide-react"
 
 interface FormData {
   firstName: string
@@ -46,11 +47,40 @@ interface FormErrors {
   aadharNumber?: string
 }
 
+type KYCStatus = "loading" | "not_registered" | "submitted" | "verified"
+
 export function KYCForm() {
   const { address, isConnected, isCorrectNetwork, chainId } = useWallet()
   const walletReady =
     Boolean(address) && isConnected && (chainId === null || chainId === 11155111)
+  const [kycStatus, setKycStatus] = useState<KYCStatus>("loading")
   const [currentStep, setCurrentStep] = useState(1)
+
+  useEffect(() => {
+    if (!address) {
+      setKycStatus("loading")
+      return
+    }
+    let cancelled = false
+    fetch(`/api/kyc/status?wallet=${encodeURIComponent(address)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return
+        if (data.verified) {
+          setKycStatus("verified")
+        } else if (data.registered) {
+          setKycStatus("submitted")
+        } else {
+          setKycStatus("not_registered")
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setKycStatus("not_registered")
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [address])
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -208,6 +238,7 @@ export function KYCForm() {
       }
 
       setShowSuccess(true)
+      setKycStatus("submitted")
       setFormData({
         firstName: "",
         lastName: "",
@@ -230,14 +261,68 @@ export function KYCForm() {
 
   return (
     <>
-      <Card className="w-full max-w-2xl mx-auto shadow-lg border-slate-200">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-slate-900">KYC Registration</CardTitle>
-          <CardDescription>Complete your identity verification in 2 steps</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Step Indicator */}
-          <div className="flex items-center justify-between mb-8">
+      {!walletReady ? (
+        <Card className="w-full max-w-2xl mx-auto shadow-lg border-slate-200">
+          <CardContent className="pt-6">
+            <Alert className="bg-amber-50 border-amber-200">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                {!isConnected
+                  ? "Please connect your MetaMask wallet using the button in the navigation bar to continue."
+                  : "Your wallet is connected but on the wrong network. Please switch to Ethereum Sepolia in MetaMask."}
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      ) : kycStatus === "verified" ? (
+        <Card className="w-full max-w-2xl mx-auto shadow-lg border-emerald-200 bg-emerald-50/50">
+          <CardContent className="pt-8 pb-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">You are a verified user</h2>
+            <p className="text-slate-600 mb-6">You can now create loans and participate as a borrower or lender on MicroFund.</p>
+            <Link
+              href="/create"
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-white font-medium hover:bg-emerald-700 transition-colors"
+            >
+              Create a Loan
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </CardContent>
+        </Card>
+      ) : kycStatus === "submitted" ? (
+        <Card className="w-full max-w-2xl mx-auto shadow-lg border-amber-200 bg-amber-50/50">
+          <CardContent className="pt-8 pb-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-amber-100">
+                <Clock className="h-8 w-8 text-amber-600" />
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Submitted and under review</h2>
+            <p className="text-slate-600">
+              Your KYC application has been received. An administrator will review your documents. You will be notified once verified.
+            </p>
+          </CardContent>
+        </Card>
+      ) : kycStatus === "loading" ? (
+        <Card className="w-full max-w-2xl mx-auto shadow-lg border-slate-200">
+          <CardContent className="pt-12 pb-12 flex flex-col items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-emerald-600 mb-4" />
+            <p className="text-slate-600">Checking your KYC status...</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="w-full max-w-2xl mx-auto shadow-lg border-slate-200">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-slate-900">KYC Registration</CardTitle>
+            <CardDescription>Complete your identity verification in 2 steps</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Step Indicator */}
+            <div className="flex items-center justify-between mb-8">
             {[
               { step: 1, label: "Personal Details", icon: User },
               { step: 2, label: "Identity Details", icon: CreditCard },
@@ -264,16 +349,6 @@ export function KYCForm() {
             ))}
           </div>
 
-          {!walletReady ? (
-            <Alert className="bg-amber-50 border-amber-200">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-800">
-                { !isConnected
-                  ? "Please connect your MetaMask wallet using the button in the navigation bar to continue."
-                  : "Your wallet is connected but on the wrong network. Please switch to Ethereum Sepolia in MetaMask." }
-              </AlertDescription>
-            </Alert>
-          ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {submitError && (
                 <Alert variant="destructive">
@@ -475,9 +550,9 @@ export function KYCForm() {
                 )}
               </div>
             </form>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Terms and Conditions Dialog */}
       <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>

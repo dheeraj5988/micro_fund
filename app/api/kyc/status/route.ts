@@ -22,8 +22,9 @@ export async function GET(request: NextRequest) {
 
     const verified = data?.verified ?? false
     const full_name = data?.full_name ?? null
+    const registered = !!data
 
-    return NextResponse.json({ verified, full_name })
+    return NextResponse.json({ verified, full_name, registered })
   } catch (error) {
     console.error("KYC status error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
