@@ -7,6 +7,7 @@ import {
   formatEther,
   basisPointsToPercent,
 } from "@/lib/contract"
+import { supabaseAdmin } from "@/lib/supabase-admin"
 
 type LoanStatus = "pending" | "active" | "funded" | "repaid"
 
@@ -58,25 +59,51 @@ export async function GET() {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider)
 
     const nextLoanId: bigint = await contract.nextLoanId()
-    const loans: EnrichedLoan[] = []
+    const rawLoans: { id: bigint; borrower: string; rawLoan: Awaited<ReturnType<typeof contract.loans>> }[] = []
+    const borrowerSet = new Set<string>()
 
     for (let id = 1n; id < nextLoanId; id++) {
       const rawLoan = await contract.loans(id)
       const borrower: string = rawLoan.borrower
+      rawLoans.push({ id, borrower, rawLoan })
+      borrowerSet.add(borrower.toLowerCase())
+    }
 
-      // Fetch on-chain user data for enrichment (username, KYC, reputation)
+    // Enrich borrower names from Supabase KYC (full_name linked to wallet_address)
+    const walletToName = new Map<string, string>()
+    if (borrowerSet.size > 0) {
+      const { data: kycRows } = await supabaseAdmin
+        .from("kyc_users")
+        .select("wallet_address, full_name")
+        .in("wallet_address", Array.from(borrowerSet))
+      if (kycRows) {
+        for (const row of kycRows) {
+          const addr = (row.wallet_address as string)?.toLowerCase()
+          const name = row.full_name as string
+          if (addr && name?.trim()) walletToName.set(addr, name.trim())
+        }
+      }
+    }
+
+    const loans: EnrichedLoan[] = []
+    for (const { id, borrower, rawLoan } of rawLoans) {
       let borrowerName = "Unknown borrower"
       let isVerified = false
       let reputationScore = 0
 
       try {
         const rawUser = await contract.getUser(borrower)
-        borrowerName = rawUser.username || borrowerName
+        const contractUsername = rawUser.username?.trim()
+        if (contractUsername) borrowerName = contractUsername
         isVerified = rawUser.isKycVerified
         reputationScore = Number(rawUser.reputationScore ?? 0)
       } catch {
-        // If getUser fails, keep defaults; don't break loan listing
+        // keep defaults
       }
+
+      // Prefer KYC full_name from Supabase when available
+      const kycName = walletToName.get(borrower.toLowerCase())
+      if (kycName) borrowerName = kycName
 
       const amountEth = Number(formatEther(rawLoan.amount))
       const amountFundedEth = Number(formatEther(rawLoan.amountFunded))

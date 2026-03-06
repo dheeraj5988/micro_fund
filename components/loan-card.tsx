@@ -31,6 +31,8 @@ interface LoanCardProps {
   isOwner: boolean
   onFund?: () => void
   isFunding?: boolean
+  onRepay?: () => void
+  isRepaying?: boolean
 }
 
 export function LoanCard({
@@ -48,6 +50,8 @@ export function LoanCard({
   isOwner,
   onFund,
   isFunding = false,
+  onRepay,
+  isRepaying = false,
 }: LoanCardProps) {
   const fundingPercentage = Math.min(Math.round((currentFunding / amount) * 100), 100)
   const truncatedWallet = `${borrowerWallet.slice(0, 6)}...${borrowerWallet.slice(-4)}`
@@ -212,19 +216,30 @@ export function LoanCard({
           </DialogContent>
         </Dialog>
 
-        <Button
-          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60"
-          disabled={status === "funded" || isOwner || isFunding || !onFund}
-          onClick={onFund}
-        >
-          {status === "funded"
-            ? "Fully Funded"
-            : isOwner
-              ? "Owner"
-              : isFunding
-                ? "Funding..."
-                : "Fund Loan"}
-        </Button>
+        {/* Dynamic Action Button Logic */}
+        {isOwner ? (
+          status === "active" ? (
+            <Button
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={isRepaying || !onRepay}
+              onClick={onRepay}
+            >
+              {isRepaying ? "Processing Repayment..." : "Repay Loan"}
+            </Button>
+          ) : (
+            <Button variant="outline" className="flex-1" disabled>
+              {status === "funded" ? "Awaiting Activation" : status === "repaid" ? "Loan Repaid" : "Your Loan"}
+            </Button>
+          )
+        ) : (
+          <Button
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60"
+            disabled={status !== "pending" || isFunding || !onFund}
+            onClick={onFund}
+          >
+            {status === "active" || status === "funded" ? "Fully Funded" : status === "repaid" ? "Repaid" : isFunding ? "Funding..." : "Fund Loan"}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

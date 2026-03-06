@@ -22,6 +22,12 @@ export function Navbar() {
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link
+                href="/dashboard"
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link
                 href="/loans"
                 className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
               >
@@ -60,6 +66,13 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200 bg-white">
           <div className="px-4 py-4 space-y-3">
+            <Link
+              href="/dashboard"
+              className="block text-sm font-medium text-slate-600 hover:text-emerald-600"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
             <Link
               href="/loans"
               className="block text-sm font-medium text-slate-600 hover:text-emerald-600"

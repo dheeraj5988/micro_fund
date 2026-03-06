@@ -3,6 +3,8 @@
 // This is a demo implementation with mock data. The actual contract address
 // and RPC URL should be provided via environment variables for real deployments.
 
+import { ethers } from "ethers"
+
 export const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0xED0b56E297B08425B480D9C3eE667c42f651560a"
 
@@ -47,4 +49,16 @@ export function basisPointsToPercent(basisPoints: number): number {
 export function calculateFundingPercentage(current: number, target: number): number {
   if (target === 0) return 0
   return Math.min(Math.round((current / target) * 100), 100)
+}
+
+/**
+ * Total repayment (principal + interest) in wei for repayLoan.
+ * Contract uses interestRate in basis points (10000 = 100%).
+ * amountEth: loan amount in ETH; interestRatePercent: e.g. 8.5 for 8.5%.
+ */
+export function getRepaymentWei(amountEth: number, interestRatePercent: number): bigint {
+  const principal = ethers.parseEther(amountEth.toString())
+  const bps = Math.round(interestRatePercent * 100)
+  const interest = (principal * BigInt(bps)) / 10000n
+  return principal + interest
 }
