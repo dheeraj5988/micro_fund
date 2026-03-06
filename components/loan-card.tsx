@@ -28,6 +28,9 @@ interface LoanCardProps {
   isVerified: boolean
   reputationScore: number
   createdAt: string
+  isOwner: boolean
+  onFund?: () => void
+  isFunding?: boolean
 }
 
 export function LoanCard({
@@ -42,6 +45,9 @@ export function LoanCard({
   isVerified,
   reputationScore,
   createdAt,
+  isOwner,
+  onFund,
+  isFunding = false,
 }: LoanCardProps) {
   const fundingPercentage = Math.min(Math.round((currentFunding / amount) * 100), 100)
   const truncatedWallet = `${borrowerWallet.slice(0, 6)}...${borrowerWallet.slice(-4)}`
@@ -69,7 +75,10 @@ export function LoanCard({
               <p className="text-xs text-slate-500 font-mono">{truncatedWallet}</p>
             </div>
           </div>
-          <ReputationBadge score={reputationScore} size="sm" />
+          <div className="flex flex-col items-end gap-1">
+            {isOwner && <Badge className="bg-purple-100 text-purple-700 text-[11px]">My Loan</Badge>}
+            <ReputationBadge score={reputationScore} size="sm" />
+          </div>
         </div>
       </CardHeader>
 
@@ -203,8 +212,18 @@ export function LoanCard({
           </DialogContent>
         </Dialog>
 
-        <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white" disabled={status === "funded"}>
-          {status === "funded" ? "Fully Funded" : "Fund Loan"}
+        <Button
+          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60"
+          disabled={status === "funded" || isOwner || isFunding || !onFund}
+          onClick={onFund}
+        >
+          {status === "funded"
+            ? "Fully Funded"
+            : isOwner
+              ? "Owner"
+              : isFunding
+                ? "Funding..."
+                : "Fund Loan"}
         </Button>
       </CardFooter>
     </Card>

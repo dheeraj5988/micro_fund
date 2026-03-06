@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { ethers } from "ethers"
 import { LoanCard } from "@/components/loan-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AlertTriangle, Filter, SortAsc, RefreshCw, Coins } from "lucide-react"
+import { useWallet } from "@/hooks/use-wallet"
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/lib/contract"
 
 interface Loan {
   id: string
@@ -28,13 +31,18 @@ interface EnrichedLoan extends Loan {
   reputationScore: number
 }
 
+const ETH_SEPOLIA_CHAIN_ID = 11155111
+
 export default function LoansPage() {
   const [loans, setLoans] = useState<EnrichedLoan[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isFunding, setIsFunding] = useState<string | null>(null)
+  const [fundError, setFundError] = useState<string | null>(null)
   const [verificationFilter, setVerificationFilter] = useState<"all" | "verified">("all")
   const [amountRange, setAmountRange] = useState([0, 5])
   const [interestFilter, setInterestFilter] = useState<"all" | "low" | "medium" | "high">("all")
   const [sortBy, setSortBy] = useState<"reputation" | "amount" | "interest" | "newest">("reputation")
+  const { address, isConnected, chainId, switchToEthSepolia } = useWallet()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +64,19 @@ export default function LoansPage() {
 
     fetchData()
   }, [])
+
+  const refreshLoans = async () => {
+    try {
+      setIsLoading(true)
+      const loansRes = await fetch("/api/loans/list")
+      const loansData = await loansRes.json()
+      setLoans(loansData.loans || [])
+    } catch (error) {
+      console.error("Error refreshing loans:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const filteredAndSortedLoans = useMemo(() => {
     let result = [...loans]
@@ -100,10 +121,73 @@ export default function LoansPage() {
   }, [loans, verificationFilter, amountRange, interestFilter, sortBy])
 
   const handleRefresh = () => {
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
+    refreshLoans()
+  }
+
+  const handleFundLoan = async (loan: EnrichedLoan) => {
+    setFundError(null)
+
+    if (!isConnected || !address) {
+      setFundError("Please connect your wallet to fund loans.")
+      return
+    }
+
+    if (address.toLowerCase() === loan.borrowerWallet.toLowerCase()) {
+      setFundError("You cannot fund your own loan.")
+      return
+    }
+
+    const remaining = loan.amount - loan.currentFunding
+    if (remaining <= 0) {
+      setFundError("This loan is already fully funded.")
+      return
+    }
+
+    const input = window.prompt(
+      `Enter amount in ETH to fund (max ${remaining.toFixed(4)} ETH) for loan #${loan.id}:`,
+      remaining.toFixed(4),
+    )
+    if (!input) return
+
+    const amount = Number.parseFloat(input)
+    if (!Number.isFinite(amount) || amount <= 0 || amount > remaining + 1e-8) {
+      setFundError("Invalid funding amount.")
+      return
+    }
+
+    try {
+      if (typeof window === "undefined" || !window.ethereum) {
+        setFundError("MetaMask is not available.")
+        return
+      }
+
+      if (chainId !== ETH_SEPOLIA_CHAIN_ID) {
+        const switched = await switchToEthSepolia()
+        if (!switched) {
+          setFundError("Please switch to Ethereum Sepolia in MetaMask.")
+          return
+        }
+      }
+
+      setIsFunding(loan.id)
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
+
+      const amountWei = ethers.parseEther(amount.toFixed(18))
+      const tx = await contract.fundLoan(BigInt(loan.id), { value: amountWei })
+      await tx.wait()
+
+      await refreshLoans()
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to fund loan"
+      setFundError(message)
+      console.error("Fund loan error:", error)
+    } finally {
+      setIsFunding(null)
+    }
   }
 
   return (
@@ -228,12 +312,25 @@ export default function LoansPage() {
         </Card>
 
         {/* Results Count */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-slate-600">
             Showing <span className="font-semibold">{filteredAndSortedLoans.length}</span> loan
             {filteredAndSortedLoans.length !== 1 ? "s" : ""}
           </p>
+          {address && (
+            <p className="text-xs text-slate-500 font-mono">
+              Viewing as <span className="font-semibold">you</span>: {address.slice(0, 6)}...
+              {address.slice(-4)}
+            </p>
+          )}
         </div>
+
+        {fundError && (
+          <div className="mb-4 text-xs text-red-600 flex items-center gap-2">
+            <AlertTriangle className="h-3 w-3" />
+            <span>{fundError}</span>
+          </div>
+        )}
 
         {/* Loan Grid */}
         {isLoading ? (
@@ -283,23 +380,29 @@ export default function LoansPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedLoans.map((loan) => (
-              <LoanCard
-                key={loan.id}
-                id={loan.id}
-                borrowerName={loan.borrowerName}
-                borrowerWallet={loan.borrowerWallet}
-                amount={loan.amount}
-                interestRate={loan.interestRate}
-                duration={loan.duration}
-                purpose={loan.purpose}
-                status={loan.status}
-                currentFunding={loan.currentFunding}
-                isVerified={loan.isVerified}
-                reputationScore={loan.reputationScore}
-                createdAt={loan.createdAt}
-              />
-            ))}
+            {filteredAndSortedLoans.map((loan) => {
+              const isOwner = address ? address.toLowerCase() === loan.borrowerWallet.toLowerCase() : false
+              return (
+                <LoanCard
+                  key={loan.id}
+                  id={loan.id}
+                  borrowerName={loan.borrowerName}
+                  borrowerWallet={loan.borrowerWallet}
+                  amount={loan.amount}
+                  interestRate={loan.interestRate}
+                  duration={loan.duration}
+                  purpose={loan.purpose}
+                  status={loan.status}
+                  currentFunding={loan.currentFunding}
+                  isVerified={loan.isVerified}
+                  reputationScore={loan.reputationScore}
+                  createdAt={loan.createdAt}
+                  isOwner={isOwner}
+                  onFund={isOwner ? undefined : () => handleFundLoan(loan)}
+                  isFunding={isFunding === loan.id}
+                />
+              )
+            })}
           </div>
         )}
 
