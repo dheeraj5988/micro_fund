@@ -233,7 +233,7 @@ export default function LoansPage() {
               <AlertTriangle className="h-4 w-4" />
               <span className="text-sm font-medium">Live Mode</span>
               <span className="text-sm text-emerald-700">
-                Loan data is fetched from the MicroFund smart contract. No local JSON demo data is used.
+                Loan data is LIVE fetched from the MicroFund smart contract.
               </span>
             </div>
           </CardContent>
