@@ -10,14 +10,6 @@ import { Slider } from "@/components/ui/slider"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AlertTriangle, Filter, SortAsc, RefreshCw, Coins } from "lucide-react"
 
-interface User {
-  walletAddress: string
-  firstName: string
-  lastName: string
-  isVerified: boolean
-  reputationScore: number
-}
-
 interface Loan {
   id: string
   borrowerWallet: string
@@ -38,7 +30,6 @@ interface EnrichedLoan extends Loan {
 
 export default function LoansPage() {
   const [loans, setLoans] = useState<EnrichedLoan[]>([])
-  const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [verificationFilter, setVerificationFilter] = useState<"all" | "verified">("all")
   const [amountRange, setAmountRange] = useState([0, 5])
@@ -52,26 +43,10 @@ export default function LoansPage() {
         // Simulate loading delay for demo
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        const [loansRes, usersRes] = await Promise.all([fetch("/api/loans/list"), fetch("/api/kyc/register")])
-
+        const loansRes = await fetch("/api/loans/list")
         const loansData = await loansRes.json()
-        const usersData = await usersRes.json()
 
-        setUsers(usersData.users || [])
-
-        // Enrich loans with user verification data
-        const enrichedLoans: EnrichedLoan[] = (loansData.loans || []).map((loan: Loan) => {
-          const user = usersData.users?.find(
-            (u: User) => u.walletAddress.toLowerCase() === loan.borrowerWallet.toLowerCase(),
-          )
-          return {
-            ...loan,
-            isVerified: user?.isVerified || false,
-            reputationScore: user?.reputationScore || 500,
-          }
-        })
-
-        setLoans(enrichedLoans)
+        setLoans(loansData.loans || [])
       } catch (error) {
         console.error("Error fetching data:", error)
       } finally {
