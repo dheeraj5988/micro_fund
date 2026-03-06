@@ -173,28 +173,31 @@ export function KYCForm() {
       return
     }
 
-    if (!validateStep(3)) {
+    if (!validateStep(2)) {
       return
     }
 
     setIsSubmitting(true)
 
     try {
+      const formPayload = new FormData()
+      formPayload.append("walletAddress", address)
+      formPayload.append("firstName", formData.firstName)
+      formPayload.append("lastName", formData.lastName)
+      formPayload.append("email", formData.email)
+      formPayload.append("country", formData.country)
+      formPayload.append("documentType", formData.documentType)
+      formPayload.append("documentNumber", formData.documentNumber)
+      if (formData.frontImage) {
+        formPayload.append("frontImage", formData.frontImage)
+      }
+      if (formData.backImage) {
+        formPayload.append("backImage", formData.backImage)
+      }
+
       const response = await fetch("/api/kyc/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          walletAddress: address,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          country: formData.country,
-          documentType: formData.documentType,
-          documentNumber: formData.documentNumber,
-          frontImage: formData.frontImage?.name,
-          backImage: formData.backImage?.name,
-          aadharNumber: formData.aadharNumber,
-        }),
+        body: formPayload,
       })
 
       const data = await response.json()

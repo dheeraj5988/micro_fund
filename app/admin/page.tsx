@@ -1,10 +1,9 @@
 "use client"
 
-import { Label } from "@/components/ui/label"
-
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,21 +19,21 @@ import {
 } from "@/components/ui/dialog"
 import { Users, Clock, CheckCircle2, Shield, Lock, Loader2, AlertTriangle, UserCheck, UserX } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/lib/supabase"
 
 interface User {
-  walletAddress: string
-  firstName: string
-  lastName: string
+  wallet_address: string
+  full_name: string
   email: string
   country: string
-  documentType: string
-  documentNumber: string
-  frontImage?: string
-  backImage?: string
-  isVerified: boolean
-  reputationScore: number
-  registeredAt: string
-  aadharNumber: string
+  document_type: string
+  document_number: string
+  id_front_url?: string | null
+  id_back_url?: string | null
+  is_verified: boolean
+  reputation_score: number
+  created_at: string
+  dob?: string | null
 }
 
 const ADMIN_PASSWORD = "microfund2026"
@@ -84,9 +83,18 @@ export default function AdminPage() {
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("/api/kyc/register")
-      const data = await response.json()
-      setUsers(data.users || [])
+      const { data, error } = await supabase
+        .from("kyc_users")
+        .select(
+          "wallet_address, full_name, email, country, document_type, document_number, id_front_url, id_back_url, is_verified, reputation_score, created_at, dob",
+        )
+        .order("created_at", { ascending: false })
+
+      if (error) {
+        throw error
+      }
+
+      setUsers(data || [])
     } catch (error) {
       console.error("Error fetching users:", error)
       toast({
@@ -123,7 +131,7 @@ export default function AdminPage() {
   const handleVerification = async () => {
     if (!confirmDialog.user) return
 
-    setProcessingWallet(confirmDialog.user.walletAddress)
+    setProcessingWallet(confirmDialog.user.wallet_address)
     setConfirmDialog({ ...confirmDialog, open: false })
 
     try {
@@ -131,7 +139,7 @@ export default function AdminPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          walletAddress: confirmDialog.user.walletAddress,
+          walletAddress: confirmDialog.user.wallet_address,
           isVerified: confirmDialog.action === "approve",
         }),
       })
@@ -144,13 +152,13 @@ export default function AdminPage() {
 
       setUsers((prev) =>
         prev.map((u) =>
-          u.walletAddress === confirmDialog.user?.walletAddress ? { ...u, isVerified: data.user.isVerified } : u,
+          u.wallet_address === confirmDialog.user?.wallet_address ? { ...u, is_verified: data.user.is_verified } : u,
         ),
       )
 
       toast({
         title: confirmDialog.action === "approve" ? "User Verified" : "Verification Revoked",
-        description: `${confirmDialog.user.firstName} ${confirmDialog.user.lastName} has been ${
+        description: `${confirmDialog.user.full_name} has been ${
           confirmDialog.action === "approve" ? "verified" : "unverified"
         }`,
       })
@@ -182,8 +190,8 @@ export default function AdminPage() {
     })
   }
 
-  const pendingUsers = users.filter((u) => !u.isVerified)
-  const verifiedUsers = users.filter((u) => u.isVerified)
+  const pendingUsers = users.filter((u) => !u.is_verified)
+  const verifiedUsers = users.filter((u) => u.is_verified)
 
   if (!isAuthenticated) {
     return (
@@ -320,13 +328,13 @@ export default function AdminPage() {
                       </TableHeader>
                       <TableBody>
                         {pendingUsers.map((user) => (
-                          <TableRow key={user.walletAddress}>
+                        <TableRow key={user.wallet_address}>
                             <TableCell className="font-medium">
-                              {user.firstName} {user.lastName}
+                              {user.full_name}
                             </TableCell>
                             <TableCell className="text-xs">{user.email}</TableCell>
                             <TableCell className="text-xs">{user.country}</TableCell>
-                            <TableCell className="text-xs">{user.documentType}</TableCell>
+                            <TableCell className="text-xs">{user.document_type}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex gap-2 justify-end">
                                 <Button
@@ -394,16 +402,16 @@ export default function AdminPage() {
                       </TableHeader>
                       <TableBody>
                         {verifiedUsers.map((user) => (
-                          <TableRow key={user.walletAddress}>
+                          <TableRow key={user.wallet_address}>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                                {user.firstName} {user.lastName}
+                                {user.full_name}
                               </div>
                             </TableCell>
                             <TableCell className="text-xs">{user.email}</TableCell>
                             <TableCell className="text-xs">{user.country}</TableCell>
-                            <TableCell className="text-xs">{user.documentType}</TableCell>
+                            <TableCell className="text-xs">{user.document_type}</TableCell>
                             <TableCell className="text-right">
                               <Button
                                 size="sm"
@@ -476,18 +484,18 @@ export default function AdminPage() {
           <DialogHeader>
             <DialogTitle>Document Verification</DialogTitle>
             <DialogDescription>
-              {documentsDialog.user?.firstName} {documentsDialog.user?.lastName}
+              {documentsDialog.user?.full_name}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Document Type</Label>
-                <p className="text-sm text-slate-600">{documentsDialog.user?.documentType}</p>
+                <p className="text-sm text-slate-600">{documentsDialog.user?.document_type}</p>
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Document Number</Label>
-                <p className="text-sm text-slate-600 font-mono">{documentsDialog.user?.documentNumber}</p>
+                <p className="text-sm text-slate-600 font-mono">{documentsDialog.user?.document_number}</p>
               </div>
             </div>
 
@@ -495,8 +503,8 @@ export default function AdminPage() {
               <div>
                 <Label className="text-sm font-medium">Front Side of Document</Label>
                 <div className="mt-2 bg-slate-100 rounded-lg p-4 flex items-center justify-center min-h-48">
-                  {documentsDialog.user?.frontImage ? (
-                    <img src={documentsDialog.user.frontImage || "/placeholder.svg"} alt="Front" className="max-h-48 rounded" />
+                  {documentsDialog.user?.id_front_url ? (
+                    <img src={documentsDialog.user.id_front_url || "/placeholder.svg"} alt="Front" className="max-h-48 rounded" />
                   ) : (
                     <p className="text-slate-500 text-sm">No image available</p>
                   )}
@@ -506,8 +514,8 @@ export default function AdminPage() {
               <div>
                 <Label className="text-sm font-medium">Back Side of Document</Label>
                 <div className="mt-2 bg-slate-100 rounded-lg p-4 flex items-center justify-center min-h-48">
-                  {documentsDialog.user?.backImage ? (
-                    <img src={documentsDialog.user.backImage || "/placeholder.svg"} alt="Back" className="max-h-48 rounded" />
+                  {documentsDialog.user?.id_back_url ? (
+                    <img src={documentsDialog.user.id_back_url || "/placeholder.svg"} alt="Back" className="max-h-48 rounded" />
                   ) : (
                     <p className="text-slate-500 text-sm">No image available</p>
                   )}

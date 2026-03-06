@@ -1,35 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
-
-interface User {
-  walletAddress: string
-  firstName: string
-  lastName: string
-  aadharNumber: string
-  isVerified: boolean
-  reputationScore: number
-  registeredAt: string
-}
-
-interface UsersData {
-  users: User[]
-}
-
-const DATA_DIR = path.join(process.cwd(), "data")
-const USERS_FILE = path.join(DATA_DIR, "users.json")
-
-function readUsers(): UsersData {
-  if (!fs.existsSync(USERS_FILE)) {
-    return { users: [] }
-  }
-  const data = fs.readFileSync(USERS_FILE, "utf-8")
-  return JSON.parse(data)
-}
-
-function writeUsers(data: UsersData) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2))
-}
+import { supabaseAdmin } from "@/lib/supabase"
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -40,19 +10,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "walletAddress and isVerified are required" }, { status: 400 })
     }
 
-    const usersData = readUsers()
-    const userIndex = usersData.users.findIndex((u) => u.walletAddress.toLowerCase() === walletAddress.toLowerCase())
+    const { data, error } = await supabaseAdmin
+      .from("kyc_users")
+      .update({ is_verified: isVerified })
+      .eq("wallet_address", walletAddress.toLowerCase())
+      .select()
+      .limit(1)
 
-    if (userIndex === -1) {
+    if (error) {
+      console.error("Verification update error:", error)
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    usersData.users[userIndex].isVerified = isVerified
-    writeUsers(usersData)
-
     return NextResponse.json({
       message: isVerified ? "User verified successfully" : "User verification revoked",
-      user: usersData.users[userIndex],
+      user: data[0],
     })
   } catch (error) {
     console.error("Verification error:", error)

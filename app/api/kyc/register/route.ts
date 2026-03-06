@@ -1,56 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
-
-interface User {
-  walletAddress: string
-  firstName: string
-  lastName: string
-  email: string
-  country: string
-  documentType: string
-  documentNumber: string
-  frontImage?: string
-  backImage?: string
-  isVerified: boolean
-  reputationScore: number
-  registeredAt: string
-}
-
-interface UsersData {
-  users: User[]
-}
-
-const DATA_DIR = path.join(process.cwd(), "data")
-const USERS_FILE = path.join(DATA_DIR, "users.json")
-
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true })
-  }
-}
-
-function readUsers(): UsersData {
-  ensureDataDir()
-  if (!fs.existsSync(USERS_FILE)) {
-    return { users: [] }
-  }
-  const data = fs.readFileSync(USERS_FILE, "utf-8")
-  return JSON.parse(data)
-}
-
-function writeUsers(data: UsersData) {
-  ensureDataDir()
-  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2))
-}
+import { supabaseAdmin } from "@/lib/supabase"
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { walletAddress, firstName, lastName, email, country, documentType, documentNumber, frontImage, backImage } =
-      body
+    const formData = await request.formData()
 
-    if (!walletAddress || !firstName || !lastName || !email || !country || !documentType || !documentNumber) {
+    const walletAddress = formData.get("walletAddress") as string | null
+    const firstName = formData.get("firstName") as string | null
+    const lastName = formData.get("lastName") as string | null
+    const email = formData.get("email") as string | null
+    const country = formData.get("country") as string | null
+    const documentType = formData.get("documentType") as string | null
+    const documentNumber = formData.get("documentNumber") as string | null
+    const frontImage = formData.get("frontImage") as File | null
+    const backImage = formData.get("backImage") as File | null
+
+    if (
+      !walletAddress ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !country ||
+      !documentType ||
+      !documentNumber
+    ) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 })
     }
 
@@ -62,44 +35,95 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Valid email is required" }, { status: 400 })
     }
 
-    const usersData = readUsers()
-    const existingUser = usersData.users.find((u) => u.walletAddress.toLowerCase() === walletAddress.toLowerCase())
+    // Check if wallet already registered
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from("kyc_users")
+      .select("wallet_address")
+      .eq("wallet_address", walletAddress.toLowerCase())
+      .limit(1)
 
-    if (existingUser) {
+    if (existingError) {
+      console.error("Error checking existing user:", existingError)
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    }
+
+    if (existing && existing.length > 0) {
       return NextResponse.json({ error: "Wallet address already registered" }, { status: 409 })
     }
 
-    const newUser: User = {
-      walletAddress,
-      firstName,
-      lastName,
-      email,
-      country,
-      documentType,
-      documentNumber,
-      frontImage,
-      backImage,
-      isVerified: false,
-      reputationScore: 500,
-      registeredAt: new Date().toISOString(),
+    // Upload documents to Supabase Storage
+    let frontImageUrl: string | null = null
+    let backImageUrl: string | null = null
+
+    if (frontImage) {
+      const ext = frontImage.name.split(".").pop() || "jpg"
+      const path = `documents/${walletAddress.toLowerCase()}-front-${Date.now()}.${ext}`
+
+      const { data, error } = await supabaseAdmin.storage.from("kyc-documents").upload(path, frontImage)
+
+      if (error) {
+        console.error("Error uploading front image:", error)
+        return NextResponse.json({ error: "Failed to upload front document image" }, { status: 500 })
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseAdmin.storage.from("kyc-documents").getPublicUrl(data.path)
+
+      frontImageUrl = publicUrl
     }
 
-    usersData.users.push(newUser)
-    writeUsers(usersData)
+    if (backImage) {
+      const ext = backImage.name.split(".").pop() || "jpg"
+      const path = `documents/${walletAddress.toLowerCase()}-back-${Date.now()}.${ext}`
 
-    return NextResponse.json({ message: "Registration successful", user: newUser }, { status: 201 })
+      const { data, error } = await supabaseAdmin.storage.from("kyc-documents").upload(path, backImage)
+
+      if (error) {
+        console.error("Error uploading back image:", error)
+        return NextResponse.json({ error: "Failed to upload back document image" }, { status: 500 })
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseAdmin.storage.from("kyc-documents").getPublicUrl(data.path)
+
+      backImageUrl = publicUrl
+    }
+
+    const fullName = `${firstName} ${lastName}`.trim()
+
+    const { data: inserted, error: insertError } = await supabaseAdmin
+      .from("kyc_users")
+      .insert({
+        wallet_address: walletAddress.toLowerCase(),
+        full_name: fullName,
+        email,
+        country,
+        document_type: documentType,
+        document_number: documentNumber,
+        id_front_url: frontImageUrl,
+        id_back_url: backImageUrl,
+        is_verified: false,
+        reputation_score: 500,
+      })
+      .select()
+      .limit(1)
+
+    if (insertError || !inserted || inserted.length === 0) {
+      console.error("Error saving user:", insertError)
+      return NextResponse.json({ error: "Failed to save user" }, { status: 500 })
+    }
+
+    return NextResponse.json(
+      {
+        message: "Registration successful",
+        user: inserted[0],
+      },
+      { status: 201 },
+    )
   } catch (error) {
     console.error("Registration error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
-  }
-}
-
-export async function GET() {
-  try {
-    const usersData = readUsers()
-    return NextResponse.json(usersData)
-  } catch (error) {
-    console.error("Error fetching users:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
