@@ -49,10 +49,11 @@ async function main() {
   console.log(`MicroFund Address: ${contractAddress}`);
   console.log("=========================================\n");
 
-  // Save deployment info
+  // Save deployment info (avoid BigInt in JSON)
+  const networkInfo = await ethers.provider.getNetwork();
   const deploymentInfo = {
     network: network.name,
-    chainId: (await ethers.provider.getNetwork()).chainId,
+    chainId: Number(networkInfo.chainId),
     microFundAddress: contractAddress,
     deployer: deployer.address,
     timestamp: new Date().toISOString(),

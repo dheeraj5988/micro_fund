@@ -47,7 +47,8 @@ interface FormErrors {
 }
 
 export function KYCForm() {
-  const { address, isConnected } = useWallet()
+  const { address, isConnected, isCorrectNetwork } = useWallet()
+  const walletReady = Boolean(address) && isConnected && isCorrectNetwork
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -259,11 +260,13 @@ export function KYCForm() {
             ))}
           </div>
 
-          {!isConnected ? (
+          {!walletReady ? (
             <Alert className="bg-amber-50 border-amber-200">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-800">
-                Please connect your MetaMask wallet using the button in the navigation bar to continue.
+                { !isConnected
+                  ? "Please connect your MetaMask wallet using the button in the navigation bar to continue."
+                  : "Your wallet is connected but on the wrong network. Please switch to Ethereum Sepolia in MetaMask." }
               </AlertDescription>
             </Alert>
           ) : (

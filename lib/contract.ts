@@ -4,7 +4,7 @@
 // and RPC URL should be provided via environment variables for real deployments.
 
 export const CONTRACT_ADDRESS =
-  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0x0000000000000000000000000000000000000000"
+  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "0xED0b56E297B08425B480D9C3eE667c42f651560a"
 
 export const ETHEREUM_SEPOLIA_CONFIG = {
   chainId: 11155111,
@@ -13,39 +13,8 @@ export const ETHEREUM_SEPOLIA_CONFIG = {
   explorerUrl: "https://sepolia.etherscan.io",
 }
 
-// Minimal ABI for read operations
-export const CONTRACT_ABI = [
-  {
-    inputs: [{ name: "loanId", type: "uint256" }],
-    name: "getLoanById",
-    outputs: [
-      { name: "borrower", type: "address" },
-      { name: "amount", type: "uint256" },
-      { name: "interestRate", type: "uint256" },
-      { name: "duration", type: "uint256" },
-      { name: "status", type: "uint8" },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getTotalLoans",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ name: "loanId", type: "uint256" }],
-    name: "getLoanFundingStatus",
-    outputs: [
-      { name: "currentFunding", type: "uint256" },
-      { name: "targetAmount", type: "uint256" },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-]
+// Full ABI generated from the deployed MicroFund contract
+export { MICROFUND_ABI as CONTRACT_ABI } from "@/blockchain/abi/MicroFund"
 
 export interface Loan {
   id: string

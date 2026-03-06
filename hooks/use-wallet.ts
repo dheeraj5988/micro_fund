@@ -35,6 +35,20 @@ const ETH_SEPOLIA_CONFIG = {
   blockExplorerUrls: ["https://sepolia.etherscan.io"],
 }
 
+function canUseBrowserStorage() {
+  if (typeof window === "undefined") return false
+  try {
+    const ls = window.localStorage
+    if (!ls) return false
+    const testKey = "__mf_test__"
+    ls.setItem(testKey, "1")
+    ls.removeItem(testKey)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function useWallet() {
   const [state, setState] = useState<WalletState>({
     address: null,
@@ -98,7 +112,7 @@ export function useWallet() {
   }
 
   const connect = async () => {
-    if (!window.ethereum?.isMetaMask) {
+    if (typeof window === "undefined" || !window.ethereum?.isMetaMask) {
       setState((prev) => ({
         ...prev,
         error: "MetaMask is not installed. Please install MetaMask to continue.",
@@ -136,7 +150,9 @@ export function useWallet() {
         }
       }
 
-      localStorage.setItem("walletAddress", address)
+      if (canUseBrowserStorage()) {
+        window.localStorage.setItem("walletAddress", address)
+      }
 
       setState((prev) => ({
         ...prev,
@@ -159,7 +175,9 @@ export function useWallet() {
   }
 
   const disconnect = () => {
-    localStorage.removeItem("walletAddress")
+    if (canUseBrowserStorage()) {
+      window.localStorage.removeItem("walletAddress")
+    }
     setState({
       address: null,
       balance: null,
@@ -171,7 +189,8 @@ export function useWallet() {
   }
 
   useEffect(() => {
-    const savedAddress = localStorage.getItem("walletAddress")
+    if (!canUseBrowserStorage()) return
+    const savedAddress = window.localStorage.getItem("walletAddress")
     if (savedAddress && window.ethereum) {
       setState((prev) => ({
         ...prev,
@@ -201,7 +220,9 @@ export function useWallet() {
         disconnect()
       } else {
         const newAddress = accs[0]
-        localStorage.setItem("walletAddress", newAddress)
+        if (canUseBrowserStorage()) {
+          window.localStorage.setItem("walletAddress", newAddress)
+        }
         setState((prev) => ({
           ...prev,
           address: newAddress,

@@ -147,14 +147,14 @@ export default function LoansPage() {
           </p>
         </div>
 
-        {/* Demo Mode Banner */}
-        <Card className="mb-6 bg-amber-50 border-amber-200">
+        {/* Live Mode Banner */}
+        <Card className="mb-6 bg-emerald-50 border-emerald-200">
           <CardContent className="py-3">
-            <div className="flex items-center justify-center gap-2 text-amber-700">
+            <div className="flex items-center justify-center gap-2 text-emerald-700">
               <AlertTriangle className="h-4 w-4" />
-              <span className="text-sm font-medium">Demo Mode</span>
-              <span className="text-sm text-amber-600">
-                - Contract interactions are simulated. Data is loaded from local JSON storage.
+              <span className="text-sm font-medium">Live Mode</span>
+              <span className="text-sm text-emerald-700">
+                Loan data is fetched from the MicroFund smart contract. No local JSON demo data is used.
               </span>
             </div>
           </CardContent>

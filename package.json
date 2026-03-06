@@ -47,7 +47,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@swc/core": "latest",
     "@swc/wasm": "latest",
-    "@typechain/ethers-v6": "latest",
+    "@typechain/ethers-v6": "^0.5.0",
     "@typechain/hardhat": "latest",
     "@types/chai": "latest",
     "@types/mocha": "latest",

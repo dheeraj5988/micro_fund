@@ -33,48 +33,7 @@ function ensureDataDir() {
 function readUsers(): UsersData {
   ensureDataDir()
   if (!fs.existsSync(USERS_FILE)) {
-    const initialData: UsersData = {
-      users: [
-        {
-          walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f1db38",
-          firstName: "Dheeraj",
-          lastName: "Sharma",
-          email: "dheeraj@microfund.io",
-          country: "India",
-          documentType: "aadhar-card",
-          documentNumber: "1234-5678-9012",
-          isVerified: true,
-          reputationScore: 550,
-          registeredAt: "2024-01-05T10:30:00Z",
-        },
-        {
-          walletAddress: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
-          firstName: "Srijita",
-          lastName: "Seth",
-          email: "srijita@microfund.io",
-          country: "India",
-          documentType: "passport",
-          documentNumber: "P2345678",
-          isVerified: false,
-          reputationScore: 500,
-          registeredAt: "2024-01-06T14:20:00Z",
-        },
-        {
-          walletAddress: "0xdD2FD4581271e230360230F9337D5c0430Bf44C0",
-          firstName: "Piyush",
-          lastName: "Mishra",
-          email: "piyush@microfund.io",
-          country: "India",
-          documentType: "driving-license",
-          documentNumber: "DL3456789",
-          isVerified: true,
-          reputationScore: 600,
-          registeredAt: "2024-01-07T09:15:00Z",
-        },
-      ],
-    }
-    fs.writeFileSync(USERS_FILE, JSON.stringify(initialData, null, 2))
-    return initialData
+    return { users: [] }
   }
   const data = fs.readFileSync(USERS_FILE, "utf-8")
   return JSON.parse(data)

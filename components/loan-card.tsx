@@ -198,15 +198,7 @@ export function LoanCard({
                 </div>
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-amber-700">
-                  <AlertTriangle className="h-4 w-4" />
-                  <span className="text-sm font-medium">Demo Mode</span>
-                </div>
-                <p className="text-xs text-amber-600 mt-1">
-                  This is a demonstration. Fund Loan functionality is simulated.
-                </p>
-              </div>
+              {/* Live contract-powered funding. No JSON demo data is used. */}
             </div>
           </DialogContent>
         </Dialog>
