@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { supabaseAdmin } from "@/lib/supabase"
+import { supabaseAdmin } from "@/lib/supabase-admin"
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function PATCH(request: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("kyc_users")
-      .update({ is_verified: isVerified })
+      .update({ verified: isVerified })
       .eq("wallet_address", walletAddress.toLowerCase())
       .select()
       .limit(1)

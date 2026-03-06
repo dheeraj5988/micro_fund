@@ -308,15 +308,15 @@ export default function LoansPage() {
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm">
               <div className="flex items-center gap-2">
-                <Badge className="bg-amber-100 text-amber-700">500-600</Badge>
-                <span className="text-slate-600">New Borrower</span>
+                <Badge className="bg-amber-100 text-amber-700">0-50</Badge>
+                <span className="text-slate-600">New User</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="bg-blue-100 text-blue-700">601-700</Badge>
+                <Badge className="bg-blue-100 text-blue-700">51-70</Badge>
                 <span className="text-slate-600">Trusted</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="bg-emerald-100 text-emerald-700">701+</Badge>
+                <Badge className="bg-emerald-100 text-emerald-700">71+</Badge>
                 <span className="text-slate-600">Elite</span>
               </div>
             </div>

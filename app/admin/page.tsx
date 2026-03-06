@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dialog"
 import { Users, Clock, CheckCircle2, Shield, Lock, Loader2, AlertTriangle, UserCheck, UserX } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
 
 interface User {
   wallet_address: string
@@ -62,9 +61,14 @@ export default function AdminPage() {
   const { toast } = useToast()
 
   useEffect(() => {
-    const session = sessionStorage.getItem("adminSession")
-    if (session === "authenticated") {
-      setIsAuthenticated(true)
+    try {
+      if (typeof window === "undefined") return
+      const session = window.sessionStorage?.getItem("adminSession")
+      if (session === "authenticated") {
+        setIsAuthenticated(true)
+      }
+    } catch (error) {
+      console.error("Error accessing sessionStorage:", error)
     }
   }, [])
 
@@ -77,16 +81,14 @@ export default function AdminPage() {
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from("kyc_users")
-        .select("wallet_address, full_name, dob, id_front_url, id_back_url, is_verified")
-        .order("wallet_address", { ascending: true })
+      const res = await fetch("/api/admin/users", { credentials: "include" })
+      const data = await res.json()
 
-      if (error) {
-        throw error
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to fetch users")
       }
 
-      setUsers(data || [])
+      setUsers(data.users ?? [])
     } catch (error) {
       console.error("Error fetching users:", error)
       toast({
@@ -99,19 +101,48 @@ export default function AdminPage() {
     }
   }
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem("adminSession", "authenticated")
-      setIsAuthenticated(true)
-      setPasswordError("")
-    } else {
+    setPasswordError("")
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+        credentials: "include",
+      })
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        try {
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem("adminSession", "authenticated")
+          }
+        } catch (err) {
+          console.error("Error writing adminSession to sessionStorage:", err)
+        }
+        setIsAuthenticated(true)
+      } else {
+        setPasswordError(data.error ?? "Invalid password")
+      }
+    } catch {
       setPasswordError("Invalid password")
     }
   }
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("adminSession")
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST", credentials: "include" })
+    } catch (err) {
+      console.error("Error clearing admin session:", err)
+    }
+    try {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("adminSession")
+      }
+    } catch (err) {
+      console.error("Error clearing adminSession from sessionStorage:", err)
+    }
     setIsAuthenticated(false)
     setPassword("")
   }
@@ -440,8 +471,8 @@ export default function AdminPage() {
             </DialogTitle>
             <DialogDescription>
               {confirmDialog.action === "approve"
-                ? `Are you sure you want to verify ${confirmDialog.user?.firstName} ${confirmDialog.user?.lastName}? They will be able to participate in the platform as a verified user.`
-                : `Are you sure you want to revoke verification for ${confirmDialog.user?.firstName} ${confirmDialog.user?.lastName}? They will lose their verified status.`}
+                ? `Are you sure you want to verify ${confirmDialog.user?.full_name}? They will be able to participate in the platform as a verified user.`
+                : `Are you sure you want to revoke verification for ${confirmDialog.user?.full_name}? They will lose their verified status.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

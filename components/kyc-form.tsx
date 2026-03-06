@@ -47,8 +47,9 @@ interface FormErrors {
 }
 
 export function KYCForm() {
-  const { address, isConnected, isCorrectNetwork } = useWallet()
-  const walletReady = Boolean(address) && isConnected && isCorrectNetwork
+  const { address, isConnected, isCorrectNetwork, chainId } = useWallet()
+  const walletReady =
+    Boolean(address) && isConnected && (chainId === null || chainId === 11155111)
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
     firstName: "",

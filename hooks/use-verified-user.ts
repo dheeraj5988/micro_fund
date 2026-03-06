@@ -8,17 +8,6 @@ interface VerifiedUser {
   isVerified: boolean
 }
 
-const MOCK_VERIFIED_USERS: Record<string, VerifiedUser> = {
-  "0x123456789abcdef": {
-    name: "Dheeraj Sharma",
-    isVerified: true,
-  },
-  "0xabcdefg": {
-    name: "Priya Patel",
-    isVerified: true,
-  },
-}
-
 export function useVerifiedUser() {
   const { address } = useWallet()
   const [verifiedUser, setVerifiedUser] = useState<VerifiedUser | null>(null)
@@ -27,6 +16,7 @@ export function useVerifiedUser() {
   useEffect(() => {
     if (!address) {
       setVerifiedUser(null)
+      setIsLoading(false)
       return
     }
 
@@ -34,15 +24,17 @@ export function useVerifiedUser() {
 
     const checkVerification = async () => {
       try {
-        const response = await fetch("/api/kyc/register")
-        const data = await response.json()
-        const users = data.users || []
+        const res = await fetch(`/api/kyc/status?wallet=${encodeURIComponent(address)}`)
+        const data = await res.json()
 
-        const user = users.find((u: { walletAddress: string }) => u.walletAddress.toLowerCase() === address.toLowerCase())
-
-        if (user && user.isVerified) {
+        if (data.verified && data.full_name) {
           setVerifiedUser({
-            name: `${user.firstName} ${user.lastName}`,
+            name: data.full_name,
+            isVerified: true,
+          })
+        } else if (data.verified) {
+          setVerifiedUser({
+            name: "Verified User",
             isVerified: true,
           })
         } else {

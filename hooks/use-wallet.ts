@@ -189,26 +189,36 @@ export function useWallet() {
   }
 
   useEffect(() => {
-    if (!canUseBrowserStorage()) return
-    const savedAddress = window.localStorage.getItem("walletAddress")
-    if (savedAddress && window.ethereum) {
-      setState((prev) => ({
-        ...prev,
-        address: savedAddress,
-        isConnected: true,
-      }))
-      fetchBalance(savedAddress)
+    if (typeof window === "undefined" || !window.ethereum) return
 
-      window.ethereum
-        .request({ method: "eth_chainId" })
-        .then((chainId) => {
+    const syncFromWallet = async () => {
+      try {
+        const [accounts, chainId] = await Promise.all([
+          window.ethereum.request({ method: "eth_accounts" }) as Promise<string[]>,
+          window.ethereum.request({ method: "eth_chainId" }) as Promise<string>,
+        ])
+        const address = accounts?.length ? accounts[0] : null
+        const savedAddress = canUseBrowserStorage() ? window.localStorage.getItem("walletAddress") : null
+        const activeAddress = address ?? savedAddress
+
+        if (activeAddress) {
           setState((prev) => ({
             ...prev,
-            chainId: Number.parseInt(chainId as string, 16),
+            address: activeAddress,
+            isConnected: true,
+            chainId: Number.parseInt(chainId, 16),
           }))
-        })
-        .catch(console.error)
+          fetchBalance(activeAddress)
+          if (canUseBrowserStorage() && !address) {
+            window.localStorage.setItem("walletAddress", activeAddress)
+          }
+        }
+      } catch (err) {
+        console.error("Wallet sync error:", err)
+      }
     }
+
+    syncFromWallet()
   }, [fetchBalance])
 
   useEffect(() => {

@@ -13,6 +13,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, AlertTriangle, CheckCircle2, Zap } from "lucide-react"
 import Link from "next/link"
+import { ethers } from "ethers"
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/lib/contract"
 
 interface FormData {
   loanAmount: string
@@ -28,8 +30,10 @@ interface FormErrors {
   purpose?: string
 }
 
+const ETH_SEPOLIA_CHAIN_ID = 11155111
+
 export default function CreateLoanPage() {
-  const { isConnected } = useWallet()
+  const { isConnected, address, chainId, switchToEthSepolia } = useWallet()
   const { isVerified, isLoading: isCheckingVerification } = useVerifiedUser()
   const [formData, setFormData] = useState<FormData>({
     loanAmount: "",
@@ -80,7 +84,7 @@ export default function CreateLoanPage() {
     e.preventDefault()
     setSubmitError(null)
 
-    if (!isConnected) {
+    if (!isConnected || !address) {
       setSubmitError("Please connect your wallet first")
       return
     }
@@ -89,25 +93,37 @@ export default function CreateLoanPage() {
       return
     }
 
+    const loanAmount = Number.parseFloat(formData.loanAmount)
+    const durationMonths = Number.parseInt(formData.duration)
+    const interestRate = Number.parseFloat(formData.interestRate)
+    const purpose = formData.purpose.trim()
+
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("/api/loans/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          loanAmount: Number.parseFloat(formData.loanAmount),
-          duration: Number.parseInt(formData.duration),
-          interestRate: Number.parseFloat(formData.interestRate),
-          purpose: formData.purpose,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create loan")
+      if (typeof window === "undefined" || !window.ethereum) {
+        throw new Error("MetaMask is not available")
       }
+
+      if (chainId !== ETH_SEPOLIA_CHAIN_ID) {
+        const switched = await switchToEthSepolia()
+        if (!switched) {
+          setSubmitError("Please switch to Ethereum Sepolia in MetaMask")
+          setIsSubmitting(false)
+          return
+        }
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
+
+      const amountWei = ethers.parseEther(loanAmount.toFixed(18))
+      const interestRateBps = Math.round(interestRate * 100)
+      const durationSeconds = durationMonths * 30 * 24 * 60 * 60
+
+      const tx = await contract.createLoan(amountWei, interestRateBps, durationSeconds, purpose)
+      await tx.wait()
 
       setShowSuccess(true)
       setFormData({
@@ -119,9 +135,11 @@ export default function CreateLoanPage() {
 
       setTimeout(() => {
         setShowSuccess(false)
-      }, 3000)
+      }, 5000)
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to create loan")
+      const message =
+        error instanceof Error ? error.message : "Failed to create loan"
+      setSubmitError(message)
     } finally {
       setIsSubmitting(false)
     }
