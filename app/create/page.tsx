@@ -114,6 +114,17 @@ export default function CreateLoanPage() {
         }
       }
 
+      // Sync Supabase verification to contract (ensures on-chain verified before createLoan)
+      const syncRes = await fetch("/api/kyc/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: address }),
+      })
+      const syncData = await syncRes.json()
+      if (!syncRes.ok) {
+        throw new Error(syncData.error ?? "Failed to sync verification. Ensure you are verified and MICROFUND_OWNER_PRIVATE_KEY is set.")
+      }
+
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)

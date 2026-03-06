@@ -29,12 +29,26 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Sync KYC status on-chain so contract's onlyVerifiedUser matches Supabase
-    const ownerPrivateKey = process.env.MICROFUND_OWNER_PRIVATE_KEY
+    let ownerPrivateKey = (process.env.MICROFUND_OWNER_PRIVATE_KEY ?? "").trim()
     const rpcUrl = ETHEREUM_SEPOLIA_CONFIG.rpcUrl
 
     if (!ownerPrivateKey || !rpcUrl) {
       console.warn("MICROFUND_OWNER_PRIVATE_KEY or Sepolia RPC URL not set; skipping on-chain KYC sync")
     } else {
+      // Strip quotes and ensure 0x prefix
+      if (ownerPrivateKey.startsWith('"') && ownerPrivateKey.endsWith('"')) {
+        ownerPrivateKey = ownerPrivateKey.slice(1, -1).trim()
+      }
+      if (ownerPrivateKey.startsWith("'") && ownerPrivateKey.endsWith("'")) {
+        ownerPrivateKey = ownerPrivateKey.slice(1, -1).trim()
+      }
+      if (!ownerPrivateKey.startsWith("0x")) {
+        ownerPrivateKey = "0x" + ownerPrivateKey
+      }
+      if (!/^0x[0-9a-fA-F]{64}$/.test(ownerPrivateKey)) {
+        console.error("Invalid MICROFUND_OWNER_PRIVATE_KEY format")
+        return NextResponse.json({ error: "Invalid owner private key format" }, { status: 500 })
+      }
       try {
         const provider = new ethers.JsonRpcProvider(rpcUrl)
         const ownerWallet = new ethers.Wallet(ownerPrivateKey, provider)

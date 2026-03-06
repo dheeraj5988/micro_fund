@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AlertTriangle, Filter, SortAsc, RefreshCw, Coins } from "lucide-react"
 import { useWallet } from "@/hooks/use-wallet"
+import { useVerifiedUser } from "@/hooks/use-verified-user"
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "@/lib/contract"
 
 interface Loan {
@@ -43,6 +44,7 @@ export default function LoansPage() {
   const [interestFilter, setInterestFilter] = useState<"all" | "low" | "medium" | "high">("all")
   const [sortBy, setSortBy] = useState<"reputation" | "amount" | "interest" | "newest">("reputation")
   const { address, isConnected, chainId, switchToEthSepolia } = useWallet()
+  const { isVerified } = useVerifiedUser()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,6 +134,11 @@ export default function LoansPage() {
       return
     }
 
+    if (!isVerified) {
+      setFundError("Complete KYC verification to fund loans. Go to Register page first.")
+      return
+    }
+
     if (address.toLowerCase() === loan.borrowerWallet.toLowerCase()) {
       setFundError("You cannot fund your own loan.")
       return
@@ -170,6 +177,19 @@ export default function LoansPage() {
       }
 
       setIsFunding(loan.id)
+
+      // Sync Supabase verification to contract before fundLoan
+      const syncRes = await fetch("/api/kyc/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: address }),
+      })
+      const syncData = await syncRes.json()
+      if (!syncRes.ok) {
+        setFundError(syncData.error ?? "Failed to sync verification.")
+        setIsFunding(null)
+        return
+      }
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
